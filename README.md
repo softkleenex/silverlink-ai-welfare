@@ -20,10 +20,15 @@
 ## 🔧 기술 스택
 
 - **Frontend/Backend**: Streamlit (Python 웹 프레임워크)
-- **AI**: Google Gemini 1.5 Pro
-- **STT**: OpenAI Whisper API
+- **AI**: Google Gemini 1.5 Pro (STT + 복지 매칭 통합!)
 - **TTS**: Google Text-to-Speech (gTTS)
 - **Data**: JSON (10개 주요 복지 혜택)
+
+### 🌟 특징: Gemini 하나로 모든 AI 처리!
+- **음성 인식 (STT)**: Gemini 멀티모달
+- **AI 분석**: Gemini
+- **음성 출력 (TTS)**: gTTS
+- **필요한 API 키**: GEMINI_API_KEY 하나만!
 
 ## 📦 설치 방법
 
@@ -56,12 +61,12 @@ cp .env.example .env
 `.env` 파일 내용:
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 #### API 키 발급 방법
-- **Google Gemini API**: https://aistudio.google.com/app/apikey (무료!)
-- **OpenAI API**: https://platform.openai.com/
+- **Google Gemini API**: https://aistudio.google.com/app/apikey
+  - **완전 무료!** (무료 할당량으로 충분)
+  - 이 키 하나로 모든 기능 사용 가능 (STT + AI + 모든 처리)
 
 ## 🚀 실행 방법
 
@@ -145,11 +150,13 @@ ai-conic/
 - 파란색/흰색 중심의 편안한 색상
 - 명확한 안내 메시지
 
-### 3. Google Gemini AI 활용
+### 3. Google Gemini AI 활용 (멀티모달)
+- **하나의 API로 모든 처리**: STT + AI 분석 통합
 - 뛰어난 한국어 이해 (사투리, 비표준 표현)
+- 오디오를 직접 이해하여 더 정확한 분석
 - 긴 컨텍스트로 전체 복지 데이터 포함 가능
 - 안전하고 친절한 응답
-- **무료 API** (개발 단계에서 비용 부담 없음)
+- **완전 무료 API** (개발 단계에서 비용 부담 없음)
 
 ## 💰 사회적 가치
 

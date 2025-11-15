@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import openai
 from gtts import gTTS
 import json
 import os
@@ -12,7 +11,6 @@ load_dotenv()
 # API 클라이언트 초기화
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 gemini_model = genai.GenerativeModel('gemini-1.5-pro')
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 복지 데이터 로드
 @st.cache_data
@@ -48,6 +46,38 @@ def create_prompt(user_text):
 반드시 존댓말을 사용하고, 어르신께서 이해하기 쉽게 친절하고 따뜻하게 설명해주세요.
 
 어르신 말씀: {user_text}
+"""
+
+# Gemini 오디오 프롬프트 생성
+def create_audio_prompt():
+    welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
+    return f"""이 오디오에서 어르신의 말씀을 듣고 다음을 수행해주세요:
+
+1. 먼저 어르신이 말씀하신 내용을 텍스트로 정리해주세요.
+
+2. 말씀에서 다음 정보를 파악해주세요:
+   - 나이
+   - 거주지
+   - 소득 수준 (기초생활수급자, 차상위계층, 일반 등)
+   - 건강 상태
+   - 가족 상황 (독거, 가족과 동거 등)
+
+3. 아래 복지 혜택 목록에서 어르신께 적합한 혜택을 3-5개 추천해주세요.
+
+복지 혜택 목록:
+{welfare_info}
+
+응답 형식:
+[어르신 말씀]
+(어르신이 말씀하신 내용을 텍스트로 정리)
+
+[AI 복지 도우미]
+1. 어르신의 상황에 공감하는 따뜻한 인사
+2. 받으실 수 있는 복지 혜택 3-5가지 추천 (혜택명, 금액, 신청방법 포함)
+3. 각 혜택별로 필요한 서류와 담당 기관 안내
+4. 격려와 응원의 말씀
+
+반드시 존댓말을 사용하고, 어르신께서 이해하기 쉽게 친절하고 따뜻하게 설명해주세요.
 """
 
 # Streamlit 페이지 설정
@@ -144,10 +174,7 @@ with tab1:
 
 # 탭 2: 음성 파일 업로드
 with tab2:
-    # OpenAI API 키 확인
-    if not openai.api_key:
-        st.warning("⚠️ OPENAI_API_KEY가 설정되지 않았습니다. 음성 파일 업로드 기능을 사용하려면 .env 파일에 OPENAI_API_KEY를 추가해주세요.")
-        st.info("💡 또는 '텍스트 입력' 탭을 사용해주세요!")
+    st.markdown("### 음성 파일을 업로드해주세요")
 
     uploaded_file = st.file_uploader(
         "음성 파일을 선택해주세요 (mp3, wav, m4a)",
@@ -155,41 +182,32 @@ with tab2:
         help="스마트폰으로 녹음한 음성 파일을 업로드해주세요"
     )
 
-    if uploaded_file is not None and openai.api_key:
+    if uploaded_file is not None:
         # 오디오 파일 표시
         st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
 
-        # STT 처리
-        with st.spinner("🎧 어르신 말씀을 듣고 있어요..."):
+        # Gemini로 오디오 처리 (STT + AI 분석 한 번에!)
+        with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
             try:
                 # 임시 파일로 저장
-                with open("temp_audio.mp3", "wb") as f:
+                temp_path = "temp_audio.mp3"
+                with open(temp_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
-                # Whisper API로 음성 인식
-                with open("temp_audio.mp3", "rb") as audio_file:
-                    transcript = openai.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_file,
-                        language="ko"
-                    )
+                # Gemini에 오디오 파일 업로드
+                audio_file = genai.upload_file(path=temp_path)
 
-                user_text = transcript.text
-                st.markdown(f'<div class="user-message">👵 어르신 말씀: {user_text}</div>', unsafe_allow_html=True)
+                # Gemini로 오디오 분석 (STT + 복지 매칭 한 번에!)
+                response = gemini_model.generate_content([
+                    create_audio_prompt(),
+                    audio_file
+                ])
 
-            except Exception as e:
-                st.error(f"음성 인식 중 오류가 발생했습니다: {str(e)}")
-                st.stop()
-
-        # Gemini AI 처리
-        with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
-            try:
-                response = gemini_model.generate_content(create_prompt(user_text))
                 ai_response = response.text
-                st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
 
             except Exception as e:
-                st.error(f"AI 처리 중 오류가 발생했습니다: {str(e)}")
+                st.error(f"처리 중 오류가 발생했습니다: {str(e)}")
                 st.stop()
 
         # TTS 처리
