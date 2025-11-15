@@ -14,13 +14,13 @@
 
 ### 핵심 기능
 1. 🎤 **음성 입력**: 어르신이 음성으로 자신의 상황 설명
-2. 🤖 **AI 분석**: Claude AI가 상황을 파악하고 적합한 복지 혜택 추천
+2. 🤖 **AI 분석**: Google Gemini AI가 상황을 파악하고 적합한 복지 혜택 추천
 3. 🔊 **음성 출력**: 추천 결과를 음성으로 친절하게 안내
 
 ## 🔧 기술 스택
 
 - **Frontend/Backend**: Streamlit (Python 웹 프레임워크)
-- **AI**: Claude Sonnet 4 (Anthropic)
+- **AI**: Google Gemini 1.5 Pro
 - **STT**: OpenAI Whisper API
 - **TTS**: Google Text-to-Speech (gTTS)
 - **Data**: JSON (10개 주요 복지 혜택)
@@ -55,12 +55,12 @@ cp .env.example .env
 
 `.env` 파일 내용:
 ```
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 #### API 키 발급 방법
-- **Anthropic API**: https://console.anthropic.com/
+- **Google Gemini API**: https://aistudio.google.com/app/apikey (무료!)
 - **OpenAI API**: https://platform.openai.com/
 
 ## 🚀 실행 방법
@@ -145,10 +145,11 @@ ai-conic/
 - 파란색/흰색 중심의 편안한 색상
 - 명확한 안내 메시지
 
-### 3. Claude AI 활용
+### 3. Google Gemini AI 활용
 - 뛰어난 한국어 이해 (사투리, 비표준 표현)
-- 200K 토큰 컨텍스트로 전체 복지 데이터 포함 가능
+- 긴 컨텍스트로 전체 복지 데이터 포함 가능
 - 안전하고 친절한 응답
+- **무료 API** (개발 단계에서 비용 부담 없음)
 
 ## 💰 사회적 가치
 

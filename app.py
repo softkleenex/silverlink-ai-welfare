@@ -1,5 +1,5 @@
 import streamlit as st
-import anthropic
+import google.generativeai as genai
 import openai
 from gtts import gTTS
 import json
@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API 클라이언트 초기화
-claude_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+gemini_model = genai.GenerativeModel('gemini-1.5-pro')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 복지 데이터 로드
@@ -21,8 +22,8 @@ def load_welfare_data():
 
 welfare_data = load_welfare_data()
 
-# Claude 시스템 프롬프트 생성
-def create_system_prompt():
+# Gemini 프롬프트 생성
+def create_prompt(user_text):
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
     return f"""당신은 어르신을 위한 따뜻한 복지 안내 AI입니다.
 
@@ -45,6 +46,8 @@ def create_system_prompt():
 4. 격려와 응원의 말씀
 
 반드시 존댓말을 사용하고, 어르신께서 이해하기 쉽게 친절하고 따뜻하게 설명해주세요.
+
+어르신 말씀: {user_text}
 """
 
 # Streamlit 페이지 설정
@@ -132,19 +135,11 @@ if uploaded_file is not None:
             st.error(f"음성 인식 중 오류가 발생했습니다: {str(e)}")
             st.stop()
 
-    # Claude AI 처리
+    # Gemini AI 처리
     with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
         try:
-            message = claude_client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=2048,
-                system=create_system_prompt(),
-                messages=[
-                    {"role": "user", "content": user_text}
-                ]
-            )
-
-            ai_response = message.content[0].text
+            response = gemini_model.generate_content(create_prompt(user_text))
+            ai_response = response.text
             st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
 
         except Exception as e:
