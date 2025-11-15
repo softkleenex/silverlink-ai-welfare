@@ -100,63 +100,109 @@ st.markdown('<div class="main-title">🎙️ SilverLink</div>', unsafe_allow_htm
 st.markdown('<div class="sub-title">어르신을 위한 AI 복지 도우미</div>', unsafe_allow_html=True)
 
 # 설명
-st.info("💡 음성 파일을 업로드하시면 받으실 수 있는 복지 혜택을 안내해드립니다!")
+st.info("💡 텍스트로 입력하거나 음성 파일을 업로드하시면 받으실 수 있는 복지 혜택을 안내해드립니다!")
 
-# 파일 업로드
-uploaded_file = st.file_uploader(
-    "음성 파일을 선택해주세요 (mp3, wav, m4a)",
-    type=['mp3', 'wav', 'm4a'],
-    help="스마트폰으로 녹음한 음성 파일을 업로드해주세요"
-)
+# 탭 생성
+tab1, tab2 = st.tabs(["📝 텍스트 입력", "🎤 음성 파일"])
 
-if uploaded_file is not None:
-    # 오디오 파일 표시
-    st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
+# 탭 1: 텍스트 입력
+with tab1:
+    st.markdown("### 어르신의 상황을 말씀해주세요")
+    user_input = st.text_area(
+        "상황 입력",
+        placeholder="예: 저는 72살이고 혼자 살고 있어요. 다리가 아파서 거동이 불편합니다.",
+        height=150,
+        label_visibility="collapsed"
+    )
 
-    # STT 처리
-    with st.spinner("🎧 어르신 말씀을 듣고 있어요..."):
-        try:
-            # 임시 파일로 저장
-            with open("temp_audio.mp3", "wb") as f:
-                f.write(uploaded_file.getbuffer())
-
-            # Whisper API로 음성 인식
-            with open("temp_audio.mp3", "rb") as audio_file:
-                transcript = openai.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file,
-                    language="ko"
-                )
-
-            user_text = transcript.text
+    if st.button("🔍 복지 혜택 찾기", type="primary", use_container_width=True):
+        if user_input.strip():
+            user_text = user_input.strip()
             st.markdown(f'<div class="user-message">👵 어르신 말씀: {user_text}</div>', unsafe_allow_html=True)
 
-        except Exception as e:
-            st.error(f"음성 인식 중 오류가 발생했습니다: {str(e)}")
-            st.stop()
+            # Gemini AI 처리
+            with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
+                try:
+                    response = gemini_model.generate_content(create_prompt(user_text))
+                    ai_response = response.text
+                    st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"AI 처리 중 오류가 발생했습니다: {str(e)}")
+                    st.stop()
 
-    # Gemini AI 처리
-    with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
-        try:
-            response = gemini_model.generate_content(create_prompt(user_text))
-            ai_response = response.text
-            st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
+            # TTS 처리
+            with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+                try:
+                    tts = gTTS(text=ai_response, lang='ko', slow=False)
+                    tts.save("response.mp3")
+                    st.success("✅ 응답 음성이 준비되었습니다!")
+                    st.audio("response.mp3", format='audio/mp3')
+                except Exception as e:
+                    st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+        else:
+            st.warning("상황을 입력해주세요!")
 
-        except Exception as e:
-            st.error(f"AI 처리 중 오류가 발생했습니다: {str(e)}")
-            st.stop()
+# 탭 2: 음성 파일 업로드
+with tab2:
+    # OpenAI API 키 확인
+    if not openai.api_key:
+        st.warning("⚠️ OPENAI_API_KEY가 설정되지 않았습니다. 음성 파일 업로드 기능을 사용하려면 .env 파일에 OPENAI_API_KEY를 추가해주세요.")
+        st.info("💡 또는 '텍스트 입력' 탭을 사용해주세요!")
 
-    # TTS 처리
-    with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
-        try:
-            tts = gTTS(text=ai_response, lang='ko', slow=False)
-            tts.save("response.mp3")
+    uploaded_file = st.file_uploader(
+        "음성 파일을 선택해주세요 (mp3, wav, m4a)",
+        type=['mp3', 'wav', 'm4a'],
+        help="스마트폰으로 녹음한 음성 파일을 업로드해주세요"
+    )
 
-            st.success("✅ 응답 음성이 준비되었습니다!")
-            st.audio("response.mp3", format='audio/mp3')
+    if uploaded_file is not None and openai.api_key:
+        # 오디오 파일 표시
+        st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
 
-        except Exception as e:
-            st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+        # STT 처리
+        with st.spinner("🎧 어르신 말씀을 듣고 있어요..."):
+            try:
+                # 임시 파일로 저장
+                with open("temp_audio.mp3", "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+                # Whisper API로 음성 인식
+                with open("temp_audio.mp3", "rb") as audio_file:
+                    transcript = openai.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file,
+                        language="ko"
+                    )
+
+                user_text = transcript.text
+                st.markdown(f'<div class="user-message">👵 어르신 말씀: {user_text}</div>', unsafe_allow_html=True)
+
+            except Exception as e:
+                st.error(f"음성 인식 중 오류가 발생했습니다: {str(e)}")
+                st.stop()
+
+        # Gemini AI 처리
+        with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
+            try:
+                response = gemini_model.generate_content(create_prompt(user_text))
+                ai_response = response.text
+                st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
+
+            except Exception as e:
+                st.error(f"AI 처리 중 오류가 발생했습니다: {str(e)}")
+                st.stop()
+
+        # TTS 처리
+        with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+            try:
+                tts = gTTS(text=ai_response, lang='ko', slow=False)
+                tts.save("response.mp3")
+
+                st.success("✅ 응답 음성이 준비되었습니다!")
+                st.audio("response.mp3", format='audio/mp3')
+
+            except Exception as e:
+                st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
 
 # 푸터
 st.markdown("---")
