@@ -1,6 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 from gtts import gTTS
+from audio_recorder_streamlit import audio_recorder
 import json
 import os
 from dotenv import load_dotenv
@@ -133,7 +134,7 @@ st.markdown('<div class="sub-title">어르신을 위한 AI 복지 도우미</div
 st.info("💡 텍스트로 입력하거나 음성 파일을 업로드하시면 받으실 수 있는 복지 혜택을 안내해드립니다!")
 
 # 탭 생성
-tab1, tab2 = st.tabs(["📝 텍스트 입력", "🎤 음성 파일"])
+tab1, tab2, tab3 = st.tabs(["📝 텍스트 입력", "📁 음성 파일", "🎙️ 실시간 녹음"])
 
 # 탭 1: 텍스트 입력
 with tab1:
@@ -198,6 +199,62 @@ with tab2:
                 audio_file = genai.upload_file(path=temp_path)
 
                 # Gemini로 오디오 분석 (STT + 복지 매칭 한 번에!)
+                response = gemini_model.generate_content([
+                    create_audio_prompt(),
+                    audio_file
+                ])
+
+                ai_response = response.text
+                st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
+
+            except Exception as e:
+                st.error(f"처리 중 오류가 발생했습니다: {str(e)}")
+                st.stop()
+
+        # TTS 처리
+        with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+            try:
+                tts = gTTS(text=ai_response, lang='ko', slow=False)
+                tts.save("response.mp3")
+
+                st.success("✅ 응답 음성이 준비되었습니다!")
+                st.audio("response.mp3", format='audio/mp3')
+
+            except Exception as e:
+                st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+
+# 탭 3: 실시간 녹음
+with tab3:
+    st.markdown("### 🎙️ 버튼을 눌러 직접 녹음해주세요")
+    st.info("💡 아래 마이크 버튼을 눌러 녹음을 시작하고, 다시 눌러 녹음을 종료하세요")
+
+    # 실시간 녹음
+    audio_bytes = audio_recorder(
+        text="녹음 시작/중지",
+        recording_color="#e74c3c",
+        neutral_color="#3498db",
+        icon_name="microphone",
+        icon_size="3x",
+    )
+
+    if audio_bytes:
+        st.success("✅ 녹음이 완료되었습니다!")
+
+        # 녹음된 오디오 재생
+        st.audio(audio_bytes, format='audio/wav')
+
+        # Gemini로 오디오 처리
+        with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
+            try:
+                # 임시 파일로 저장
+                temp_path = "temp_recorded_audio.wav"
+                with open(temp_path, "wb") as f:
+                    f.write(audio_bytes)
+
+                # Gemini에 오디오 파일 업로드
+                audio_file = genai.upload_file(path=temp_path)
+
+                # Gemini로 오디오 분석
                 response = gemini_model.generate_content([
                     create_audio_prompt(),
                     audio_file
