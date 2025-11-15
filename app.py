@@ -10,7 +10,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API 클라이언트 초기화
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    st.error("⚠️ GEMINI_API_KEY가 설정되지 않았습니다. .env 파일을 확인해주세요.")
+    st.info("💡 Google AI Studio에서 API 키를 발급받으세요: https://aistudio.google.com/app/apikey")
+    st.stop()
+
+genai.configure(api_key=api_key)
 gemini_model = genai.GenerativeModel('gemini-1.5-pro')
 
 # 복지 데이터 로드
@@ -158,7 +164,16 @@ with tab1:
                     ai_response = response.text
                     st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
                 except Exception as e:
-                    st.error(f"AI 처리 중 오류가 발생했습니다: {str(e)}")
+                    error_msg = str(e)
+                    if "API key" in error_msg:
+                        st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
+                    elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                        st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
+                    elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                        st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
+                    else:
+                        st.error(f"⚠️ AI 처리 중 오류가 발생했습니다: {error_msg}")
+                    st.info("💡 문제가 계속되면 페이지를 새로고침하거나 다시 시도해주세요.")
                     st.stop()
 
             # TTS 처리
@@ -208,7 +223,18 @@ with tab2:
                 st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
 
             except Exception as e:
-                st.error(f"처리 중 오류가 발생했습니다: {str(e)}")
+                error_msg = str(e)
+                if "API key" in error_msg:
+                    st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
+                elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                    st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
+                elif "audio" in error_msg.lower() or "file" in error_msg.lower():
+                    st.error("⚠️ 음성 파일 처리 오류: 지원되는 형식(mp3, wav, m4a)인지 확인해주세요.")
+                elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                    st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
+                else:
+                    st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
+                st.info("💡 다른 음성 파일로 시도하거나 페이지를 새로고침해주세요.")
                 st.stop()
 
         # TTS 처리
@@ -264,7 +290,18 @@ with tab3:
                 st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
 
             except Exception as e:
-                st.error(f"처리 중 오류가 발생했습니다: {str(e)}")
+                error_msg = str(e)
+                if "API key" in error_msg:
+                    st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
+                elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                    st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
+                elif "audio" in error_msg.lower() or "file" in error_msg.lower():
+                    st.error("⚠️ 녹음 파일 처리 오류: 다시 녹음해주세요.")
+                elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                    st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
+                else:
+                    st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
+                st.info("💡 다시 녹음하거나 페이지를 새로고침해주세요.")
                 st.stop()
 
         # TTS 처리
