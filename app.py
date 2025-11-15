@@ -139,6 +139,36 @@ st.markdown('<div class="sub-title">어르신을 위한 AI 복지 도우미</div
 # 설명
 st.info("💡 텍스트로 입력하거나 음성 파일을 업로드하시면 받으실 수 있는 복지 혜택을 안내해드립니다!")
 
+# 사용 가이드
+with st.expander("📖 사용 방법 보기"):
+    st.markdown("""
+    ### 🎯 이렇게 사용하세요!
+
+    **1️⃣ 텍스트 입력**
+    - 어르신의 상황을 텍스트로 입력하세요
+    - 예: "저는 72살이고 혼자 살고 있어요. 다리가 아파서 거동이 불편합니다"
+
+    **2️⃣ 음성 파일 업로드**
+    - 스마트폰 녹음 앱으로 음성을 녹음하세요
+    - mp3, wav, m4a 파일을 업로드하세요
+
+    **3️⃣ 실시간 녹음 (가장 쉬움!)**
+    - 마이크 버튼을 눌러 바로 녹음하세요
+    - 다시 버튼을 눌러 녹음을 완료하세요
+
+    ### 💬 이런 정보를 말씀해주세요
+    - 나이 (예: 72살, 68세 등)
+    - 거주 상황 (독거, 가족과 동거 등)
+    - 건강 상태 (거동 불편, 만성질환 등)
+    - 경제 상황 (소득 수준, 일자리 필요 등)
+    - 필요한 도움 (생활비, 의료비, 돌봄 등)
+
+    ### ✅ 결과 확인
+    - AI가 분석한 복지 혜택을 텍스트로 확인하세요
+    - 음성으로도 들어보세요
+    - 결과를 다운로드하여 보관하세요
+    """)
+
 # 탭 생성
 tab1, tab2, tab3 = st.tabs(["📝 텍스트 입력", "📁 음성 파일", "🎙️ 실시간 녹음"])
 
@@ -183,6 +213,26 @@ with tab1:
                     tts.save("response.mp3")
                     st.success("✅ 응답 음성이 준비되었습니다!")
                     st.audio("response.mp3", format='audio/mp3')
+
+                    # 다운로드 버튼
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.download_button(
+                            label="📄 결과 텍스트 다운로드",
+                            data=ai_response,
+                            file_name="복지혜택_추천결과.txt",
+                            mime="text/plain",
+                            use_container_width=True
+                        )
+                    with col2:
+                        with open("response.mp3", "rb") as f:
+                            st.download_button(
+                                label="🔊 음성 파일 다운로드",
+                                data=f,
+                                file_name="복지혜택_음성안내.mp3",
+                                mime="audio/mp3",
+                                use_container_width=True
+                            )
                 except Exception as e:
                     st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
         else:
@@ -245,6 +295,26 @@ with tab2:
 
                 st.success("✅ 응답 음성이 준비되었습니다!")
                 st.audio("response.mp3", format='audio/mp3')
+
+                # 다운로드 버튼
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.download_button(
+                        label="📄 결과 텍스트 다운로드",
+                        data=ai_response,
+                        file_name="복지혜택_추천결과.txt",
+                        mime="text/plain",
+                        use_container_width=True
+                    )
+                with col2:
+                    with open("response.mp3", "rb") as f:
+                        st.download_button(
+                            label="🔊 음성 파일 다운로드",
+                            data=f,
+                            file_name="복지혜택_음성안내.mp3",
+                            mime="audio/mp3",
+                            use_container_width=True
+                        )
 
             except Exception as e:
                 st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
@@ -312,6 +382,26 @@ with tab3:
 
                 st.success("✅ 응답 음성이 준비되었습니다!")
                 st.audio("response.mp3", format='audio/mp3')
+
+                # 다운로드 버튼
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.download_button(
+                        label="📄 결과 텍스트 다운로드",
+                        data=ai_response,
+                        file_name="복지혜택_추천결과.txt",
+                        mime="text/plain",
+                        use_container_width=True
+                    )
+                with col2:
+                    with open("response.mp3", "rb") as f:
+                        st.download_button(
+                            label="🔊 음성 파일 다운로드",
+                            data=f,
+                            file_name="복지혜택_음성안내.mp3",
+                            mime="audio/mp3",
+                            use_container_width=True
+                        )
 
             except Exception as e:
                 st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
