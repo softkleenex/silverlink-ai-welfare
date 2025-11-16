@@ -94,9 +94,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# 커스텀 CSS (큰 글씨, 큰 버튼)
+# 커스텀 CSS (큰 글씨, 큰 버튼, 모바일 최적화)
 st.markdown("""
 <style>
+    /* 모바일 viewport 설정 */
+    @viewport {
+        width: device-width;
+        zoom: 1.0;
+    }
+
+    /* 데스크톱 스타일 */
     .main-title {
         font-size: 3rem;
         font-weight: bold;
@@ -114,6 +121,8 @@ st.markdown("""
         font-size: 1.5rem;
         padding: 1rem 2rem;
         border-radius: 10px;
+        min-height: 60px;
+        width: 100%;
     }
     .user-message {
         font-size: 1.3rem;
@@ -121,6 +130,7 @@ st.markdown("""
         padding: 1rem;
         border-radius: 10px;
         margin: 1rem 0;
+        word-wrap: break-word;
     }
     .ai-message {
         font-size: 1.3rem;
@@ -128,6 +138,63 @@ st.markdown("""
         padding: 1rem;
         border-radius: 10px;
         margin: 1rem 0;
+        word-wrap: break-word;
+    }
+
+    /* 모바일 최적화 (768px 이하) */
+    @media only screen and (max-width: 768px) {
+        .main-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .sub-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .stButton>button {
+            font-size: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            min-height: 50px;
+        }
+        .user-message, .ai-message {
+            font-size: 1.1rem;
+            padding: 0.8rem;
+        }
+        /* 텍스트 영역 크기 조정 */
+        .stTextArea textarea {
+            font-size: 1.1rem !important;
+        }
+        /* 탭 크기 조정 */
+        .stTabs [data-baseweb="tab"] {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    /* 작은 모바일 (480px 이하) */
+    @media only screen and (max-width: 480px) {
+        .main-title {
+            font-size: 1.5rem;
+        }
+        .sub-title {
+            font-size: 1rem;
+        }
+        .stButton>button {
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+        }
+        .user-message, .ai-message {
+            font-size: 1rem;
+            padding: 0.6rem;
+        }
+    }
+
+    /* 터치 최적화 */
+    @media (hover: none) and (pointer: coarse) {
+        .stButton>button {
+            min-height: 60px;
+            touch-action: manipulation;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
