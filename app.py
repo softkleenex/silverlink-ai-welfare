@@ -17,7 +17,7 @@ if not api_key:
     st.stop()
 
 genai.configure(api_key=api_key)
-gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+gemini_model = genai.GenerativeModel('gemini-2.5-pro')
 
 # 복지 데이터 로드
 @st.cache_data
@@ -27,65 +27,151 @@ def load_welfare_data():
 
 welfare_data = load_welfare_data()
 
-# Gemini 프롬프트 생성
+# Gemini 프롬프트 생성 (JSON 포맷)
 def create_prompt(user_text):
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
-    return f"""당신은 어르신을 위한 따뜻한 복지 안내 AI입니다.
+    return f"""당신은 대한민국 복지 전문가 AI입니다.
 
-어르신의 상황을 듣고 다음 정보를 파악해주세요:
-- 나이
-- 거주지
-- 소득 수준 (기초생활수급자, 차상위계층, 일반 등)
-- 건강 상태
-- 가족 상황 (독거, 가족과 동거 등)
+**중요 지침**:
+1. 보건복지부 '복지로' 사이트(www.bokjiro.go.kr)와 각 지자체 공식 홈페이지의 2025년 최신 데이터를 기반으로 답변하세요
+2. 확실하지 않은 정보는 "가까운 주민센터(☎ 국번없이 129)에 문의가 필요합니다"라고 명시하세요
+3. 반드시 아래 JSON 형식으로만 답변하세요 (다른 설명 없이 JSON만 출력)
 
-아래 복지 혜택 목록에서 어르신께 적합한 혜택을 3-5개 추천해주세요.
+어르신 상황: {user_text}
 
-복지 혜택 목록:
+참고할 복지 혜택 목록:
 {welfare_info}
 
-응답 형식:
-1. 먼저 어르신의 상황에 공감하는 따뜻한 인사
-2. 받으실 수 있는 복지 혜택 3-5가지 추천 (혜택명, 금액, 신청방법 포함)
-3. 각 혜택별로 필요한 서류와 담당 기관 안내
-4. 격려와 응원의 말씀
+**반드시 아래 JSON 형식으로 답변하세요**:
+{{
+  "greeting": "어르신의 상황에 공감하는 따뜻한 인사 (2-3문장)",
+  "benefits": [
+    {{
+      "name": "복지 혜택명",
+      "target": "대상 (예: 만 65세 이상, 소득 하위 70%)",
+      "amount": "금액 (예: 월 최대 32만원)",
+      "description": "혜택에 대한 간단한 설명 (1-2문장)",
+      "next_action": "다음 할 일 - 구체적으로 (예: 신분증과 통장사본을 가지고 가까운 주민센터를 방문하여 신청하세요)",
+      "documents": ["필요 서류 1", "필요 서류 2"],
+      "contact": "문의처 (전화번호 포함)"
+    }}
+  ],
+  "encouragement": "격려와 응원의 말씀 (2-3문장)"
+}}
 
-반드시 존댓말을 사용하고, 어르신께서 이해하기 쉽게 친절하고 따뜻하게 설명해주세요.
+**주의**: 위 JSON 형식을 정확히 지켜주세요. 존댓말을 사용하고 따뜻하게 작성하세요."""
 
-어르신 말씀: {user_text}
-"""
-
-# Gemini 오디오 프롬프트 생성
+# Gemini 오디오 프롬프트 생성 (JSON 포맷)
 def create_audio_prompt():
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
     return f"""이 오디오에서 어르신의 말씀을 듣고 다음을 수행해주세요:
 
-1. 먼저 어르신이 말씀하신 내용을 텍스트로 정리해주세요.
+**중요 지침**:
+1. 먼저 어르신이 말씀하신 내용을 텍스트로 정확하게 정리하세요
+2. 보건복지부 '복지로' 사이트(www.bokjiro.go.kr)와 각 지자체 공식 홈페이지의 2025년 최신 데이터를 기반으로 답변하세요
+3. 확실하지 않은 정보는 "가까운 주민센터(☎ 국번없이 129)에 문의가 필요합니다"라고 명시하세요
+4. 반드시 아래 JSON 형식으로만 답변하세요 (다른 설명 없이 JSON만 출력)
 
-2. 말씀에서 다음 정보를 파악해주세요:
-   - 나이
-   - 거주지
-   - 소득 수준 (기초생활수급자, 차상위계층, 일반 등)
-   - 건강 상태
-   - 가족 상황 (독거, 가족과 동거 등)
-
-3. 아래 복지 혜택 목록에서 어르신께 적합한 혜택을 3-5개 추천해주세요.
-
-복지 혜택 목록:
+참고할 복지 혜택 목록:
 {welfare_info}
 
-응답 형식:
-[어르신 말씀]
-(어르신이 말씀하신 내용을 텍스트로 정리)
+**반드시 아래 JSON 형식으로 답변하세요**:
+{{
+  "transcript": "어르신이 말씀하신 내용을 텍스트로 정리",
+  "greeting": "어르신의 상황에 공감하는 따뜻한 인사 (2-3문장)",
+  "benefits": [
+    {{
+      "name": "복지 혜택명",
+      "target": "대상 (예: 만 65세 이상, 소득 하위 70%)",
+      "amount": "금액 (예: 월 최대 32만원)",
+      "description": "혜택에 대한 간단한 설명 (1-2문장)",
+      "next_action": "다음 할 일 - 구체적으로 (예: 신분증과 통장사본을 가지고 가까운 주민센터를 방문하여 신청하세요)",
+      "documents": ["필요 서류 1", "필요 서류 2"],
+      "contact": "문의처 (전화번호 포함)"
+    }}
+  ],
+  "encouragement": "격려와 응원의 말씀 (2-3문장)"
+}}
 
-[AI 복지 도우미]
-1. 어르신의 상황에 공감하는 따뜻한 인사
-2. 받으실 수 있는 복지 혜택 3-5가지 추천 (혜택명, 금액, 신청방법 포함)
-3. 각 혜택별로 필요한 서류와 담당 기관 안내
-4. 격려와 응원의 말씀
-
-반드시 존댓말을 사용하고, 어르신께서 이해하기 쉽게 친절하고 따뜻하게 설명해주세요.
+**주의**: 위 JSON 형식을 정확히 지켜주세요. 존댓말을 사용하고 따뜻하게 작성하세요.
 """
+
+# JSON 파싱 및 UI 표시 함수
+def parse_and_display_response(response_text):
+    """Gemini 응답을 JSON으로 파싱하고 구조화된 UI로 표시"""
+    try:
+        # JSON 추출 (```json ... ``` 형태로 올 수 있음)
+        response_text = response_text.strip()
+        if "```json" in response_text:
+            start = response_text.find("```json") + 7
+            end = response_text.find("```", start)
+            response_text = response_text[start:end].strip()
+        elif "```" in response_text:
+            start = response_text.find("```") + 3
+            end = response_text.find("```", start)
+            response_text = response_text[start:end].strip()
+
+        data = json.loads(response_text)
+
+        # 인사말 표시
+        if "greeting" in data:
+            st.markdown(f'<div class="ai-message">🤖 **AI 복지 도우미**\n\n{data["greeting"]}</div>', unsafe_allow_html=True)
+
+        # 어르신 말씀 (음성 파일의 경우)
+        if "transcript" in data:
+            st.markdown(f'<div class="user-message">👵 **어르신 말씀**\n\n{data["transcript"]}</div>', unsafe_allow_html=True)
+
+        # 복지 혜택 표시
+        if "benefits" in data and len(data["benefits"]) > 0:
+            st.markdown("### 📋 추천 복지 혜택")
+            for idx, benefit in enumerate(data["benefits"], 1):
+                with st.expander(f"**{idx}. {benefit.get('name', '복지 혜택')}** - {benefit.get('amount', '')}"):
+                    st.markdown(f"**🎯 대상**: {benefit.get('target', '정보 없음')}")
+                    st.markdown(f"**📝 설명**: {benefit.get('description', '')}")
+
+                    # Next Action 강조 표시
+                    if "next_action" in benefit:
+                        st.markdown(f"**👉 다음 할 일**")
+                        st.info(benefit["next_action"])
+
+                    if "documents" in benefit and len(benefit["documents"]) > 0:
+                        st.markdown(f"**📄 필요 서류**: {', '.join(benefit['documents'])}")
+
+                    if "contact" in benefit:
+                        st.markdown(f"**📞 문의처**: {benefit['contact']}")
+
+        # 격려 메시지
+        if "encouragement" in data:
+            st.markdown(f'<div class="ai-message">💙 {data["encouragement"]}</div>', unsafe_allow_html=True)
+
+        # 전체 텍스트 생성 (TTS용)
+        full_text = ""
+        if "greeting" in data:
+            full_text += data["greeting"] + "\n\n"
+
+        if "benefits" in data:
+            for idx, benefit in enumerate(data["benefits"], 1):
+                full_text += f"{idx}. {benefit.get('name', '')}. "
+                full_text += f"{benefit.get('description', '')} "
+                full_text += f"금액은 {benefit.get('amount', '')}입니다. "
+                if "next_action" in benefit:
+                    full_text += f"{benefit['next_action']} "
+                full_text += "\n\n"
+
+        if "encouragement" in data:
+            full_text += data["encouragement"]
+
+        return full_text
+
+    except json.JSONDecodeError as e:
+        # JSON 파싱 실패 시 원본 텍스트 표시
+        st.warning("⚠️ 응답을 구조화된 형식으로 표시할 수 없어 원본 텍스트로 표시합니다.")
+        st.markdown(f'<div class="ai-message">{response_text}</div>', unsafe_allow_html=True)
+        return response_text
+    except Exception as e:
+        st.error(f"응답 처리 중 오류 발생: {str(e)}")
+        st.markdown(f'<div class="ai-message">{response_text}</div>', unsafe_allow_html=True)
+        return response_text
 
 # Streamlit 페이지 설정
 st.set_page_config(
@@ -259,7 +345,9 @@ with tab1:
                 try:
                     response = gemini_model.generate_content(create_prompt(user_text))
                     ai_response = response.text
-                    st.markdown(f'<div class="ai-message">🤖 AI 도우미:\n\n{ai_response}</div>', unsafe_allow_html=True)
+
+                    # JSON 파싱 및 구조화된 UI 표시
+                    ai_text = parse_and_display_response(ai_response)
                 except Exception as e:
                     error_msg = str(e)
                     if "API key" in error_msg:
@@ -276,7 +364,7 @@ with tab1:
             # TTS 처리
             with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
                 try:
-                    tts = gTTS(text=ai_response, lang='ko', slow=False)
+                    tts = gTTS(text=ai_text, lang='ko', slow=False)
                     tts.save("response.mp3")
                     st.success("✅ 응답 음성이 준비되었습니다!")
                     st.audio("response.mp3", format='audio/mp3')
@@ -286,7 +374,7 @@ with tab1:
                     with col1:
                         st.download_button(
                             label="📄 결과 텍스트 다운로드",
-                            data=ai_response,
+                            data=ai_text,
                             file_name="복지혜택_추천결과.txt",
                             mime="text/plain",
                             use_container_width=True
@@ -337,7 +425,9 @@ with tab2:
                 ])
 
                 ai_response = response.text
-                st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
+
+                # JSON 파싱 및 구조화된 UI 표시
+                ai_text = parse_and_display_response(ai_response)
 
             except Exception as e:
                 error_msg = str(e)
@@ -357,7 +447,7 @@ with tab2:
         # TTS 처리
         with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
             try:
-                tts = gTTS(text=ai_response, lang='ko', slow=False)
+                tts = gTTS(text=ai_text, lang='ko', slow=False)
                 tts.save("response.mp3")
 
                 st.success("✅ 응답 음성이 준비되었습니다!")
@@ -368,7 +458,7 @@ with tab2:
                 with col1:
                     st.download_button(
                         label="📄 결과 텍스트 다운로드",
-                        data=ai_response,
+                        data=ai_text,
                         file_name="복지혜택_추천결과.txt",
                         mime="text/plain",
                         use_container_width=True
@@ -424,7 +514,9 @@ with tab3:
                 ])
 
                 ai_response = response.text
-                st.markdown(f'<div class="ai-message">{ai_response}</div>', unsafe_allow_html=True)
+
+                # JSON 파싱 및 구조화된 UI 표시
+                ai_text = parse_and_display_response(ai_response)
 
             except Exception as e:
                 error_msg = str(e)
@@ -444,7 +536,7 @@ with tab3:
         # TTS 처리
         with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
             try:
-                tts = gTTS(text=ai_response, lang='ko', slow=False)
+                tts = gTTS(text=ai_text, lang='ko', slow=False)
                 tts.save("response.mp3")
 
                 st.success("✅ 응답 음성이 준비되었습니다!")
@@ -455,7 +547,7 @@ with tab3:
                 with col1:
                     st.download_button(
                         label="📄 결과 텍스트 다운로드",
-                        data=ai_response,
+                        data=ai_text,
                         file_name="복지혜택_추천결과.txt",
                         mime="text/plain",
                         use_container_width=True
