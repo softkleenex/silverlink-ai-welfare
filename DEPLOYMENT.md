@@ -27,8 +27,10 @@
 3. **"Advanced settings"** 클릭
 4. **"Secrets"** 탭에서 다음 내용 추가:
    ```toml
-   GEMINI_API_KEY = "AIzaSyDxy-idLNaEbS7rTUWjLejfTGcnLUYi7Yk"
+   GEMINI_API_KEY = "여기에_실제_Gemini_API_키를_입력하세요"
    ```
+
+   ⚠️ **중요**: 실제 API 키로 교체해야 합니다!
 
 5. **"Deploy!"** 클릭
 
