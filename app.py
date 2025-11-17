@@ -27,74 +27,161 @@ def load_welfare_data():
 
 welfare_data = load_welfare_data()
 
-# Gemini 프롬프트 생성 (JSON 포맷)
+# Gemini 프롬프트 생성 (JSON 포맷) - AI 강화 버전
 def create_prompt(user_text):
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
+    valid_names = [b["name"] for b in welfare_data]
+
     return f"""당신은 대한민국 복지 전문가 AI입니다.
 
-**중요 지침**:
-1. 보건복지부 '복지로' 사이트(www.bokjiro.go.kr)와 각 지자체 공식 홈페이지의 2025년 최신 데이터를 기반으로 답변하세요
-2. 확실하지 않은 정보는 "가까운 주민센터(☎ 국번없이 129)에 문의가 필요합니다"라고 명시하세요
-3. 반드시 아래 JSON 형식으로만 답변하세요 (다른 설명 없이 JSON만 출력)
+**절대 준수 사항** (위반 시 잘못된 응답):
+1. 오직 아래 제공된 {len(welfare_data)}개 복지 혜택만 추천하세요
+   허용된 혜택: {', '.join(valid_names)}
+   ⚠️ 위 목록에 없는 다른 혜택은 절대 언급 금지
+
+2. 금액과 대상 조건은 아래 데이터와 정확히 일치해야 합니다
+   ❌ 추측 금지 | ❌ 변경 금지 | ✅ 원본 그대로 복사
+
+3. 각 혜택의 적합도를 0-100점으로 평가하세요 (relevance_score)
+   - 90-100점: 완벽히 부합
+   - 75-89점: 대부분 부합
+   - 70-74점: 일부 부합
+   - 70점 미만: 추천하지 마세요
+
+4. 확실하지 않은 정보는 "가까운 주민센터(☎ 129)에 문의가 필요합니다"라고 명시
 
 어르신 상황: {user_text}
 
-참고할 복지 혜택 목록:
+복지 혜택 데이터베이스 ({len(welfare_data)}개):
 {welfare_info}
 
-**반드시 아래 JSON 형식으로 답변하세요**:
+**응답 예시** (반드시 이 형식을 따르세요):
 {{
-  "greeting": "어르신의 상황에 공감하는 따뜻한 인사 (2-3문장)",
+  "greeting": "어르신 안녕하세요. 혼자 생활하시면서 거동이 불편하신 상황이 정말 힘드실 것 같습니다. 받으실 수 있는 복지 혜택을 찾아보겠습니다.",
   "benefits": [
     {{
-      "name": "복지 혜택명",
-      "target": "대상 (예: 만 65세 이상, 소득 하위 70%)",
-      "amount": "금액 (예: 월 최대 32만원)",
-      "description": "혜택에 대한 간단한 설명 (1-2문장)",
-      "next_action": "다음 할 일 - 구체적으로 (예: 신분증과 통장사본을 가지고 가까운 주민센터를 방문하여 신청하세요)",
-      "documents": ["필요 서류 1", "필요 서류 2"],
-      "contact": "문의처 (전화번호 포함)"
+      "name": "독거노인 돌봄 서비스",
+      "relevance_score": 95,
+      "relevance_reason": "혼자 사시는 만 65세 이상 어르신을 위한 서비스",
+      "target": "만 65세 이상 독거노인",
+      "amount": "무료",
+      "description": "정기적으로 안전을 확인하고 필요한 서비스를 연계해드립니다",
+      "next_action": "주민센터를 방문하거나 국번없이 129에 전화하여 신청하세요",
+      "documents": ["신분증"],
+      "contact": "보건복지상담센터 129"
     }}
   ],
-  "encouragement": "격려와 응원의 말씀 (2-3문장)"
+  "encouragement": "어르신께서 받으실 수 있는 혜택이 많습니다. 주민센터에 방문하시면 자세히 안내받으실 수 있습니다."
 }}
 
-**주의**: 위 JSON 형식을 정확히 지켜주세요. 존댓말을 사용하고 따뜻하게 작성하세요."""
+**JSON 형식** (다른 설명 없이 JSON만 출력):
+{{
+  "greeting": "string (2-3문장, 존댓말)",
+  "benefits": [
+    {{
+      "name": "string (위 {len(welfare_data)}개 중 정확히 하나)",
+      "relevance_score": number (70-100),
+      "relevance_reason": "string (왜 적합한지 구체적으로)",
+      "target": "string (원본 데이터 그대로)",
+      "amount": "string (원본 데이터 그대로)",
+      "description": "string (1-2문장)",
+      "next_action": "string (구체적 행동 지침)",
+      "documents": ["string"],
+      "contact": "string"
+    }}
+  ],
+  "encouragement": "string (2-3문장, 따뜻하게)"
+}}"""
 
-# Gemini 오디오 프롬프트 생성 (JSON 포맷)
+# Gemini 오디오 프롬프트 생성 (JSON 포맷) - AI 강화 버전
 def create_audio_prompt():
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
+    valid_names = [b["name"] for b in welfare_data]
+
     return f"""이 오디오에서 어르신의 말씀을 듣고 다음을 수행해주세요:
 
-**중요 지침**:
-1. 먼저 어르신이 말씀하신 내용을 텍스트로 정확하게 정리하세요
-2. 보건복지부 '복지로' 사이트(www.bokjiro.go.kr)와 각 지자체 공식 홈페이지의 2025년 최신 데이터를 기반으로 답변하세요
-3. 확실하지 않은 정보는 "가까운 주민센터(☎ 국번없이 129)에 문의가 필요합니다"라고 명시하세요
-4. 반드시 아래 JSON 형식으로만 답변하세요 (다른 설명 없이 JSON만 출력)
+**절대 준수 사항** (위반 시 잘못된 응답):
+1. 먼저 어르신이 말씀하신 내용을 텍스트로 정확하게 정리하세요 (transcript 필드)
 
-참고할 복지 혜택 목록:
+2. 오직 아래 제공된 {len(welfare_data)}개 복지 혜택만 추천하세요
+   허용된 혜택: {', '.join(valid_names)}
+   ⚠️ 위 목록에 없는 다른 혜택은 절대 언급 금지
+
+3. 금액과 대상 조건은 아래 데이터와 정확히 일치해야 합니다
+   ❌ 추측 금지 | ❌ 변경 금지 | ✅ 원본 그대로 복사
+
+4. 각 혜택의 적합도를 0-100점으로 평가하세요 (relevance_score)
+   - 90-100점: 완벽히 부합
+   - 75-89점: 대부분 부합
+   - 70-74점: 일부 부합
+   - 70점 미만: 추천하지 마세요
+
+5. 확실하지 않은 정보는 "가까운 주민센터(☎ 129)에 문의가 필요합니다"라고 명시
+
+복지 혜택 데이터베이스 ({len(welfare_data)}개):
 {welfare_info}
 
-**반드시 아래 JSON 형식으로 답변하세요**:
+**JSON 형식** (다른 설명 없이 JSON만 출력):
 {{
-  "transcript": "어르신이 말씀하신 내용을 텍스트로 정리",
-  "greeting": "어르신의 상황에 공감하는 따뜻한 인사 (2-3문장)",
+  "transcript": "string (어르신이 말씀하신 내용 텍스트로)",
+  "greeting": "string (2-3문장, 존댓말)",
   "benefits": [
     {{
-      "name": "복지 혜택명",
-      "target": "대상 (예: 만 65세 이상, 소득 하위 70%)",
-      "amount": "금액 (예: 월 최대 32만원)",
-      "description": "혜택에 대한 간단한 설명 (1-2문장)",
-      "next_action": "다음 할 일 - 구체적으로 (예: 신분증과 통장사본을 가지고 가까운 주민센터를 방문하여 신청하세요)",
-      "documents": ["필요 서류 1", "필요 서류 2"],
-      "contact": "문의처 (전화번호 포함)"
+      "name": "string (위 {len(welfare_data)}개 중 정확히 하나)",
+      "relevance_score": number (70-100),
+      "relevance_reason": "string (왜 적합한지 구체적으로)",
+      "target": "string (원본 데이터 그대로)",
+      "amount": "string (원본 데이터 그대로)",
+      "description": "string (1-2문장)",
+      "next_action": "string (구체적 행동 지침)",
+      "documents": ["string"],
+      "contact": "string"
     }}
   ],
-  "encouragement": "격려와 응원의 말씀 (2-3문장)"
-}}
+  "encouragement": "string (2-3문장, 따뜻하게)"
+}}"""
 
-**주의**: 위 JSON 형식을 정확히 지켜주세요. 존댓말을 사용하고 따뜻하게 작성하세요.
-"""
+# 복지 혜택 검증 및 자동 수정 함수
+def validate_and_fix_benefits(data):
+    """AI가 추천한 혜택이 실제 데이터에 있는지 검증하고 자동 보정"""
+    # 유효한 혜택명 딕셔너리 (이름 → 원본 데이터)
+    valid_benefits = {b["name"]: b for b in welfare_data}
+
+    if "benefits" not in data or not isinstance(data["benefits"], list):
+        st.warning("⚠️ 복지 혜택 정보를 찾을 수 없습니다.")
+        data["benefits"] = []
+        return data
+
+    validated = []
+    for benefit in data["benefits"]:
+        benefit_name = benefit.get("name", "")
+
+        # 혜택명이 실제 데이터에 있는지 확인
+        if benefit_name in valid_benefits:
+            original = valid_benefits[benefit_name]
+
+            # 금액과 대상을 원본 데이터로 강제 보정 (AI가 변경했을 수 있음)
+            benefit["amount"] = original["amount"]
+            benefit["target"] = original["target"]
+
+            # documents와 contact도 원본으로 보정
+            if "documents" not in benefit or not benefit["documents"]:
+                benefit["documents"] = original["documents"]
+            if "contact" not in benefit or not benefit["contact"]:
+                benefit["contact"] = original["contact"]
+
+            validated.append(benefit)
+        else:
+            # 존재하지 않는 혜택 발견 (Hallucination)
+            st.warning(f"⚠️ '{benefit_name}'는 데이터베이스에 없는 혜택입니다. AI가 잘못된 정보를 제공했으므로 제외합니다.")
+
+    data["benefits"] = validated
+
+    # 유효한 혜택이 하나도 없으면 안내
+    if len(validated) == 0:
+        st.info("💡 정확히 매칭되는 혜택을 찾지 못했습니다. 가까운 주민센터(☎ 129)에 직접 문의해주세요.")
+
+    return data
 
 # JSON 파싱 및 UI 표시 함수
 def parse_and_display_response(response_text):
@@ -113,6 +200,9 @@ def parse_and_display_response(response_text):
 
         data = json.loads(response_text)
 
+        # ✅ AI 응답 검증 및 보정 (Hallucination 방지)
+        data = validate_and_fix_benefits(data)
+
         # 인사말 표시
         if "greeting" in data:
             st.markdown(f'<div class="ai-message">🤖 **AI 복지 도우미**\n\n{data["greeting"]}</div>', unsafe_allow_html=True)
@@ -121,11 +211,31 @@ def parse_and_display_response(response_text):
         if "transcript" in data:
             st.markdown(f'<div class="user-message">👵 **어르신 말씀**\n\n{data["transcript"]}</div>', unsafe_allow_html=True)
 
-        # 복지 혜택 표시
+        # 복지 혜택 표시 (적합도 순으로 정렬)
         if "benefits" in data and len(data["benefits"]) > 0:
+            # 적합도 점수로 정렬 (높은 순)
+            sorted_benefits = sorted(
+                data["benefits"],
+                key=lambda x: x.get("relevance_score", 0),
+                reverse=True
+            )
+
             st.markdown("### 📋 추천 복지 혜택")
-            for idx, benefit in enumerate(data["benefits"], 1):
-                with st.expander(f"**{idx}. {benefit.get('name', '복지 혜택')}** - {benefit.get('amount', '')}"):
+            for idx, benefit in enumerate(sorted_benefits, 1):
+                # 적합도 점수 표시 (색상 구분)
+                score = benefit.get("relevance_score", 0)
+                if score >= 80:
+                    score_color = "🟢"  # 매우 적합
+                elif score >= 60:
+                    score_color = "🟡"  # 적합
+                else:
+                    score_color = "🟠"  # 참고용
+
+                with st.expander(f"**{idx}. {benefit.get('name', '복지 혜택')}** {score_color} (적합도 {score}점) - {benefit.get('amount', '')}"):
+                    # 적합도 이유 표시
+                    if "relevance_reason" in benefit:
+                        st.info(f"**💡 추천 이유**: {benefit['relevance_reason']}")
+
                     st.markdown(f"**🎯 대상**: {benefit.get('target', '정보 없음')}")
                     st.markdown(f"**📝 설명**: {benefit.get('description', '')}")
 
@@ -343,7 +453,10 @@ with tab1:
             # Gemini AI 처리
             with st.spinner("🤖 복지 혜택을 찾고 있어요..."):
                 try:
-                    response = gemini_model.generate_content(create_prompt(user_text))
+                    response = gemini_model.generate_content(
+                        create_prompt(user_text),
+                        generation_config=genai.GenerationConfig(temperature=0.2)
+                    )
                     ai_response = response.text
 
                     # JSON 파싱 및 구조화된 UI 표시
@@ -419,10 +532,10 @@ with tab2:
                 audio_file = genai.upload_file(path=temp_path)
 
                 # Gemini로 오디오 분석 (STT + 복지 매칭 한 번에!)
-                response = gemini_model.generate_content([
-                    create_audio_prompt(),
-                    audio_file
-                ])
+                response = gemini_model.generate_content(
+                    [create_audio_prompt(), audio_file],
+                    generation_config=genai.GenerationConfig(temperature=0.2)
+                )
 
                 ai_response = response.text
 
@@ -508,10 +621,10 @@ with tab3:
                 audio_file = genai.upload_file(path=temp_path)
 
                 # Gemini로 오디오 분석
-                response = gemini_model.generate_content([
-                    create_audio_prompt(),
-                    audio_file
-                ])
+                response = gemini_model.generate_content(
+                    [create_audio_prompt(), audio_file],
+                    generation_config=genai.GenerationConfig(temperature=0.2)
+                )
 
                 ai_response = response.text
 
