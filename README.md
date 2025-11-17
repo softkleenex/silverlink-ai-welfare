@@ -2,6 +2,22 @@
 
 > 어르신을 위한 AI 음성 기반 복지 정보 제공 서비스
 
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.51.0-red.svg)
+![Gemini](https://img.shields.io/badge/Gemini-2.5%20Pro-purple.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Status](https://img.shields.io/badge/Status-Live-success.svg)
+
+## 🌐 라이브 데모
+
+**배포 URL**: https://silverlink-ai-welfare-6kn44w2jypeuce5d9zrsfg.streamlit.app
+
+**지금 바로 체험해보세요!** (모바일 지원 ✅)
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://silverlink-ai-welfare-6kn44w2jypeuce5d9zrsfg.streamlit.app)
+
+---
+
 ## 📋 프로젝트 소개
 
 **SilverLink**는 디지털 소외 어르신들이 받을 수 있는 복지 혜택을 쉽게 찾고 신청할 수 있도록 돕는 AI 음성 서비스입니다.
@@ -23,9 +39,10 @@
 ## 🔧 기술 스택
 
 - **Frontend/Backend**: Streamlit (Python 웹 프레임워크)
-- **AI**: Google Gemini 1.5 Pro (STT + 복지 매칭 통합!)
+- **AI**: Google Gemini 2.5 Pro (STT + 복지 매칭 통합!)
 - **TTS**: Google Text-to-Speech (gTTS)
-- **Data**: JSON (10개 주요 복지 혜택)
+- **Data**: JSON (20개 주요 복지 혜택)
+- **Deployment**: Streamlit Cloud (무료)
 
 ### 🌟 특징: Gemini 하나로 모든 AI 처리!
 - **음성 인식 (STT)**: Gemini 멀티모달
