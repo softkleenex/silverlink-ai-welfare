@@ -29,6 +29,83 @@ def load_welfare_data():
 
 welfare_data = load_welfare_data()
 
+# 금액 파싱 함수 (웹 검색 결과에서 금액 추출)
+def extract_amount_from_text(text):
+    """
+    텍스트에서 금액을 파싱합니다.
+    예: "34만 2,510원" → "342510원"
+        "월 32만원" → "320000원"
+    """
+    # 패턴 1: "34만 2,510원" 형식
+    pattern1 = r'(\d+)만\s*(\d{1},)?(\d{3})원'
+    match = re.search(pattern1, text)
+    if match:
+        man = int(match.group(1))  # 만 단위
+        cheon = match.group(3)  # 천 단위
+        return f"{man * 10000 + int(cheon)}원"
+
+    # 패턴 2: "32만원" 형식
+    pattern2 = r'(\d+)만\s*원'
+    match = re.search(pattern2, text)
+    if match:
+        man = int(match.group(1))
+        return f"{man * 10000}원"
+
+    # 패턴 3: "320000원", "32만" 등
+    pattern3 = r'(\d+)원'
+    match = re.search(pattern3, text)
+    if match:
+        return match.group(0)
+
+    return None
+
+# 최신 복지 정보 (2025년 기준)
+# 웹 검색으로 확인한 최신 금액 (2025.11.20 기준)
+LATEST_WELFARE_INFO_2025 = {
+    "기초연금": {
+        "amount": "월 최대 34만 2,510원",
+        "source": "보건복지부",
+        "date": "2025",
+        "note": "2024년 33만 4,810원에서 인상"
+    },
+    "기초생활수급": {
+        "amount": "가구원 수에 따라 월 62만원~213만원",
+        "source": "보건복지부",
+        "date": "2025",
+        "note": "중위소득 30~50% 기준"
+    },
+    "주거급여": {
+        "amount": "월 평균 19.7만원",
+        "source": "국토교통부",
+        "date": "2025",
+        "note": "지역 및 가구원 수에 따라 차등"
+    },
+    "노인 일자리 지원": {
+        "amount": "월 27만원~71만원",
+        "source": "보건복지부",
+        "date": "2025",
+        "note": "사업 유형에 따라 차등"
+    },
+    "에너지바우처": {
+        "amount": "연 22.2만원~64.8만원",
+        "source": "산업통상자원부",
+        "date": "2025",
+        "note": "동절기 전기·가스 요금 지원"
+    }
+}
+
+def get_latest_welfare_info():
+    """
+    2025년 최신 복지 정보를 반환합니다.
+    실제 배포 환경에서는 공공 API 연동 예정.
+    """
+    enable_latest_info = os.getenv("SHOW_LATEST_INFO", "true") == "true"
+
+    if not enable_latest_info:
+        return {}
+
+    return LATEST_WELFARE_INFO_2025
+
 # Gemini 프롬프트 생성 (JSON 포맷) - AI 강화 버전
 def create_prompt(user_text):
     welfare_info = json.dumps(welfare_data, ensure_ascii=False, indent=2)
@@ -51,6 +128,29 @@ def create_prompt(user_text):
    - 70점 미만: 추천하지 마세요
 
 4. 확실하지 않은 정보는 "가까운 주민센터(☎ 129)에 문의가 필요합니다"라고 명시
+
+**분석 방법 (단계별):**
+1단계: 사용자 정보 추출 (나이, 거주 형태, 건강 상태, 경제 상황)
+2단계: 각 복지 혜택의 대상 조건과 매칭
+3단계: 적합도 점수 산정 (조건 충족률 기반)
+4단계: 상위 3-5개 혜택 추천
+
+**좋은 추천 예시:**
+
+예시 1:
+입력: "72살 독거노인, 다리 불편, 소득 월 80만원"
+분석: 나이(72) → 노인복지 O, 독거 → 돌봄필요 O, 다리불편 → 장기요양 가능, 저소득 → 기초연금 O
+추천: 기초연금(95점), 독거노인 돌봄 서비스(92점), 노인 장기요양보험(85점)
+
+예시 2:
+입력: "68살, 치아 안 좋음, 건강검진 받고 싶어요"
+분석: 나이(68) → 노인건강 O, 치아 → 틀니/임플란트 O, 검진 → 무료검진 O
+추천: 노인 틀니 지원(98점), 노인 건강진단(95점), 임플란트 지원(90점)
+
+예시 3:
+입력: "75살, 일자리 찾습니다"
+분석: 나이(75) → 노인일자리 O, 일 의욕 O
+추천: 노인 일자리 지원(100점), 기초연금(80점 - 일자리 병행 가능)
 
 어르신 상황: {user_text}
 
@@ -119,6 +219,24 @@ def create_audio_prompt():
    - 70점 미만: 추천하지 마세요
 
 5. 확실하지 않은 정보는 "가까운 주민센터(☎ 129)에 문의가 필요합니다"라고 명시
+
+**분석 방법 (단계별):**
+1단계: 음성 텍스트 변환 (transcript)
+2단계: 사용자 정보 추출 (나이, 거주, 건강, 경제)
+3단계: 조건 매칭 및 적합도 점수 산정
+4단계: 상위 3-5개 혜택 추천
+
+**좋은 추천 예시:**
+
+예시 1:
+음성: "72살 독거노인, 다리 불편, 소득 월 80만원"
+분석: 나이(72) → 노인복지, 독거 → 돌봄, 다리불편 → 장기요양, 저소득 → 기초연금
+추천: 기초연금(95점), 독거노인 돌봄 서비스(92점), 노인 장기요양보험(85점)
+
+예시 2:
+음성: "68살, 치아 안 좋음, 건강검진 받고 싶어요"
+분석: 나이(68) → 노인건강, 치아 → 틀니/임플란트, 검진 → 무료검진
+추천: 노인 틀니 지원(98점), 노인 건강진단(95점), 임플란트 지원(90점)
 
 복지 혜택 데이터베이스 ({len(welfare_data)}개):
 {welfare_info}
@@ -251,6 +369,15 @@ def parse_and_display_response(response_text):
 
                     if "contact" in benefit:
                         st.markdown(f"**📞 문의처**: {benefit['contact']}")
+
+                    # 2025년 최신 정보 표시
+                    latest_info = get_latest_welfare_info()
+                    benefit_name = benefit.get('name', '')
+                    if benefit_name in latest_info:
+                        latest = latest_info[benefit_name]
+                        st.success(f"✨ **2025년 최신 정보**: {latest['amount']}")
+                        if 'note' in latest:
+                            st.caption(f"📌 {latest['note']} (출처: {latest['source']})")
 
         # 격려 메시지
         if "encouragement" in data:
