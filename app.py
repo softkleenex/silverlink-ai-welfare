@@ -4,6 +4,7 @@ from gtts import gTTS
 from audio_recorder_streamlit import audio_recorder
 import json
 import os
+import hashlib
 from dotenv import load_dotenv
 
 # 환경 변수 로드
@@ -510,89 +511,117 @@ with tab1:
 with tab2:
     st.markdown("### 음성 파일을 업로드해주세요")
 
+    # 세션 상태 초기화
+    if "processed_file_hash" not in st.session_state:
+        st.session_state.processed_file_hash = None
+    if "upload_result" not in st.session_state:
+        st.session_state.upload_result = None
+
     uploaded_file = st.file_uploader(
         "음성 파일을 선택해주세요 (mp3, wav, m4a)",
         type=['mp3', 'wav', 'm4a'],
-        help="스마트폰으로 녹음한 음성 파일을 업로드해주세요"
+        help="스마트폰으로 녹음한 음성 파일을 업로드해주세요",
+        key="file_uploader"
     )
 
     if uploaded_file is not None:
-        # 오디오 파일 표시
-        st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
+        # 파일 해시 생성 (중복 처리 방지)
+        file_hash = hashlib.md5(uploaded_file.getvalue()).hexdigest()
 
-        # Gemini로 오디오 처리 (STT + AI 분석 한 번에!)
-        with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
-            try:
-                # 임시 파일로 저장
-                temp_path = "temp_audio.mp3"
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+        # 이미 처리한 파일인지 확인
+        if file_hash != st.session_state.processed_file_hash:
+            # 오디오 파일 표시
+            st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
 
-                # Gemini에 오디오 파일 업로드
-                audio_file = genai.upload_file(path=temp_path)
+            # Gemini로 오디오 처리 (STT + AI 분석 한 번에!)
+            with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
+                try:
+                    # 임시 파일로 저장
+                    temp_path = "temp_audio.mp3"
+                    with open(temp_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
 
-                # Gemini로 오디오 분석 (STT + 복지 매칭 한 번에!)
-                response = gemini_model.generate_content(
-                    [create_audio_prompt(), audio_file],
-                    generation_config=genai.GenerationConfig(temperature=0.2)
-                )
+                    # Gemini에 오디오 파일 업로드
+                    audio_file = genai.upload_file(path=temp_path)
 
-                ai_response = response.text
-
-                # JSON 파싱 및 구조화된 UI 표시
-                ai_text = parse_and_display_response(ai_response)
-
-            except Exception as e:
-                error_msg = str(e)
-                if "API key" in error_msg:
-                    st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
-                elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
-                    st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
-                elif "audio" in error_msg.lower() or "file" in error_msg.lower():
-                    st.error("⚠️ 음성 파일 처리 오류: 지원되는 형식(mp3, wav, m4a)인지 확인해주세요.")
-                elif "network" in error_msg.lower() or "connection" in error_msg.lower():
-                    st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
-                else:
-                    st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
-                st.info("💡 다른 음성 파일로 시도하거나 페이지를 새로고침해주세요.")
-                st.stop()
-
-        # TTS 처리
-        with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
-            try:
-                tts = gTTS(text=ai_text, lang='ko', slow=False)
-                tts.save("response.mp3")
-
-                st.success("✅ 응답 음성이 준비되었습니다!")
-                st.audio("response.mp3", format='audio/mp3')
-
-                # 다운로드 버튼
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.download_button(
-                        label="📄 결과 텍스트 다운로드",
-                        data=ai_text,
-                        file_name="복지혜택_추천결과.txt",
-                        mime="text/plain",
-                        use_container_width=True
+                    # Gemini로 오디오 분석 (STT + 복지 매칭 한 번에!)
+                    response = gemini_model.generate_content(
+                        [create_audio_prompt(), audio_file],
+                        generation_config=genai.GenerationConfig(temperature=0.2)
                     )
-                with col2:
-                    with open("response.mp3", "rb") as f:
-                        st.download_button(
-                            label="🔊 음성 파일 다운로드",
-                            data=f,
-                            file_name="복지혜택_음성안내.mp3",
-                            mime="audio/mp3",
-                            use_container_width=True
-                        )
 
-            except Exception as e:
-                st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+                    ai_response = response.text
+
+                    # JSON 파싱 및 구조화된 UI 표시
+                    ai_text = parse_and_display_response(ai_response)
+
+                    # 처리 완료 표시 및 해시 저장
+                    st.session_state.processed_file_hash = file_hash
+                    st.session_state.upload_result = ai_text
+
+                except Exception as e:
+                    error_msg = str(e)
+                    if "API key" in error_msg:
+                        st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
+                    elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                        st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
+                        st.info("💡 Gemini API 무료 할당량은 분당 15회입니다. 1분 정도 기다렸다가 다시 시도해주세요.")
+                    elif "audio" in error_msg.lower() or "file" in error_msg.lower():
+                        st.error("⚠️ 음성 파일 처리 오류: 지원되는 형식(mp3, wav, m4a)인지 확인해주세요.")
+                    elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                        st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
+                    else:
+                        st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
+                    st.info("💡 다른 음성 파일로 시도하거나 페이지를 새로고침해주세요.")
+                    st.session_state.processed_file_hash = None  # 에러 시 해시 초기화
+                    st.stop()
+
+            # TTS 처리
+            if st.session_state.upload_result:
+                with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+                    try:
+                        tts = gTTS(text=st.session_state.upload_result, lang='ko', slow=False)
+                        tts.save("response.mp3")
+
+                        st.success("✅ 응답 음성이 준비되었습니다!")
+                        st.audio("response.mp3", format='audio/mp3')
+
+                        # 다운로드 버튼
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.download_button(
+                                label="📄 결과 텍스트 다운로드",
+                                data=st.session_state.upload_result,
+                                file_name="복지혜택_추천결과.txt",
+                                mime="text/plain",
+                                use_container_width=True
+                            )
+                        with col2:
+                            with open("response.mp3", "rb") as f:
+                                st.download_button(
+                                    label="🔊 음성 파일 다운로드",
+                                    data=f,
+                                    file_name="복지혜택_음성안내.mp3",
+                                    mime="audio/mp3",
+                                    use_container_width=True
+                                )
+
+                    except Exception as e:
+                        st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+        else:
+            # 이미 처리된 파일
+            st.info("✅ 이미 분석이 완료되었습니다. 다른 파일을 업로드하거나 페이지를 새로고침해주세요.")
 
 # 탭 3: 실시간 녹음
 with tab3:
     st.markdown("### 🎙️ 버튼을 눌러 직접 녹음해주세요")
     st.info("💡 아래 마이크 버튼을 눌러 녹음을 시작하고, 다시 눌러 녹음을 종료하세요")
+
+    # 세션 상태 초기화
+    if "processed_audio_hash" not in st.session_state:
+        st.session_state.processed_audio_hash = None
+    if "recording_result" not in st.session_state:
+        st.session_state.recording_result = None
 
     # 실시간 녹음
     audio_bytes = audio_recorder(
@@ -601,82 +630,100 @@ with tab3:
         neutral_color="#3498db",
         icon_name="microphone",
         icon_size="3x",
+        key="audio_recorder"  # 고유 키 추가
     )
 
     if audio_bytes:
-        st.success("✅ 녹음이 완료되었습니다!")
+        # 오디오 해시 생성 (중복 처리 방지)
+        audio_hash = hashlib.md5(audio_bytes).hexdigest()
 
-        # 녹음된 오디오 재생
-        st.audio(audio_bytes, format='audio/wav')
+        # 이미 처리한 오디오인지 확인
+        if audio_hash != st.session_state.processed_audio_hash:
+            st.success("✅ 녹음이 완료되었습니다!")
 
-        # Gemini로 오디오 처리
-        with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
-            try:
-                # 임시 파일로 저장
-                temp_path = "temp_recorded_audio.wav"
-                with open(temp_path, "wb") as f:
-                    f.write(audio_bytes)
+            # 녹음된 오디오 재생
+            st.audio(audio_bytes, format='audio/wav')
 
-                # Gemini에 오디오 파일 업로드
-                audio_file = genai.upload_file(path=temp_path)
+            # Gemini로 오디오 처리
+            with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
+                try:
+                    # 임시 파일로 저장
+                    temp_path = "temp_recorded_audio.wav"
+                    with open(temp_path, "wb") as f:
+                        f.write(audio_bytes)
 
-                # Gemini로 오디오 분석
-                response = gemini_model.generate_content(
-                    [create_audio_prompt(), audio_file],
-                    generation_config=genai.GenerationConfig(temperature=0.2)
-                )
+                    # Gemini에 오디오 파일 업로드
+                    audio_file = genai.upload_file(path=temp_path)
 
-                ai_response = response.text
-
-                # JSON 파싱 및 구조화된 UI 표시
-                ai_text = parse_and_display_response(ai_response)
-
-            except Exception as e:
-                error_msg = str(e)
-                if "API key" in error_msg:
-                    st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
-                elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
-                    st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
-                elif "audio" in error_msg.lower() or "file" in error_msg.lower():
-                    st.error("⚠️ 녹음 파일 처리 오류: 다시 녹음해주세요.")
-                elif "network" in error_msg.lower() or "connection" in error_msg.lower():
-                    st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
-                else:
-                    st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
-                st.info("💡 다시 녹음하거나 페이지를 새로고침해주세요.")
-                st.stop()
-
-        # TTS 처리
-        with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
-            try:
-                tts = gTTS(text=ai_text, lang='ko', slow=False)
-                tts.save("response.mp3")
-
-                st.success("✅ 응답 음성이 준비되었습니다!")
-                st.audio("response.mp3", format='audio/mp3')
-
-                # 다운로드 버튼
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.download_button(
-                        label="📄 결과 텍스트 다운로드",
-                        data=ai_text,
-                        file_name="복지혜택_추천결과.txt",
-                        mime="text/plain",
-                        use_container_width=True
+                    # Gemini로 오디오 분석
+                    response = gemini_model.generate_content(
+                        [create_audio_prompt(), audio_file],
+                        generation_config=genai.GenerationConfig(temperature=0.2)
                     )
-                with col2:
-                    with open("response.mp3", "rb") as f:
-                        st.download_button(
-                            label="🔊 음성 파일 다운로드",
-                            data=f,
-                            file_name="복지혜택_음성안내.mp3",
-                            mime="audio/mp3",
-                            use_container_width=True
-                        )
 
-            except Exception as e:
-                st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+                    ai_response = response.text
+
+                    # JSON 파싱 및 구조화된 UI 표시
+                    ai_text = parse_and_display_response(ai_response)
+
+                    # 처리 완료 표시 및 해시 저장
+                    st.session_state.processed_audio_hash = audio_hash
+                    st.session_state.recording_result = ai_text
+
+                except Exception as e:
+                    error_msg = str(e)
+                    if "API key" in error_msg:
+                        st.error("⚠️ API 키 오류: Gemini API 키를 확인해주세요.")
+                    elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                        st.error("⚠️ API 할당량 초과: 잠시 후 다시 시도해주세요.")
+                        st.info("💡 Gemini API 무료 할당량은 분당 15회입니다. 1분 정도 기다렸다가 다시 시도해주세요.")
+                    elif "audio" in error_msg.lower() or "file" in error_msg.lower():
+                        st.error("⚠️ 녹음 파일 처리 오류: 다시 녹음해주세요.")
+                    elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                        st.error("⚠️ 네트워크 오류: 인터넷 연결을 확인하고 다시 시도해주세요.")
+                    else:
+                        st.error(f"⚠️ 처리 중 오류가 발생했습니다: {error_msg}")
+                    st.info("💡 다시 녹음하거나 페이지를 새로고침해주세요.")
+                    st.session_state.processed_audio_hash = None  # 에러 시 해시 초기화
+                    st.stop()
+
+            # TTS 처리
+            if st.session_state.recording_result:
+                with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+                    try:
+                        tts = gTTS(text=st.session_state.recording_result, lang='ko', slow=False)
+                        tts.save("response.mp3")
+
+                        st.success("✅ 응답 음성이 준비되었습니다!")
+                        st.audio("response.mp3", format='audio/mp3')
+
+                        # 다운로드 버튼
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.download_button(
+                                label="📄 결과 텍스트 다운로드",
+                                data=st.session_state.recording_result,
+                                file_name="복지혜택_추천결과.txt",
+                                mime="text/plain",
+                                use_container_width=True
+                            )
+                        with col2:
+                            with open("response.mp3", "rb") as f:
+                                st.download_button(
+                                    label="🔊 음성 파일 다운로드",
+                                    data=f,
+                                    file_name="복지혜택_음성안내.mp3",
+                                    mime="audio/mp3",
+                                    use_container_width=True
+                                )
+
+                    except Exception as e:
+                        st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+        else:
+            # 이미 처리된 오디오 - 이전 결과 표시
+            if st.session_state.recording_result:
+                st.info("✅ 이미 분석이 완료되었습니다. 새로운 녹음을 하려면 다시 녹음 버튼을 눌러주세요.")
+                # 이전 결과를 다시 표시할 수도 있음 (선택사항)
 
 # 푸터
 st.markdown("---")
