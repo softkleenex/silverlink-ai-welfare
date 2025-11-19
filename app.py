@@ -5,6 +5,7 @@ from audio_recorder_streamlit import audio_recorder
 import json
 import os
 import hashlib
+import re
 from dotenv import load_dotenv
 
 # 환경 변수 로드
@@ -260,19 +261,26 @@ def parse_and_display_response(response_text):
         if "greeting" in data:
             full_text += data["greeting"] + "\n\n"
 
-        if "benefits" in data:
+        if "benefits" in data and len(data["benefits"]) > 0:
             for idx, benefit in enumerate(data["benefits"], 1):
-                full_text += f"{idx}. {benefit.get('name', '')}. "
+                full_text += f"{idx}번. {benefit.get('name', '')}. "
                 full_text += f"{benefit.get('description', '')} "
                 full_text += f"금액은 {benefit.get('amount', '')}입니다. "
                 if "next_action" in benefit:
                     full_text += f"{benefit['next_action']} "
                 full_text += "\n\n"
+        else:
+            # 추천 혜택이 없을 경우 기본 메시지
+            full_text += "정확히 매칭되는 복지 혜택을 찾지 못했습니다. 가까운 주민센터 129번에 문의해주세요.\n\n"
 
         if "encouragement" in data:
             full_text += data["encouragement"]
 
-        return full_text
+        # 빈 텍스트 방지: 최소 메시지 보장
+        if not full_text or len(full_text.strip()) < 10:
+            full_text = "복지 혜택 분석이 완료되었습니다. 자세한 내용은 주민센터에 문의해주세요."
+
+        return full_text.strip()
 
     except json.JSONDecodeError as e:
         # JSON 파싱 실패 시 원본 텍스트 표시
@@ -476,34 +484,46 @@ with tab1:
                     st.stop()
 
             # TTS 처리
-            with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
-                try:
-                    tts = gTTS(text=ai_text, lang='ko', slow=False)
-                    tts.save("response.mp3")
-                    st.success("✅ 응답 음성이 준비되었습니다!")
-                    st.audio("response.mp3", format='audio/mp3')
+            if ai_text and len(ai_text.strip()) > 0:
+                with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
+                    try:
+                        # TTS를 위한 텍스트 정리 (이모지 제거)
+                        clean_text = re.sub(r'[^\w\s가-힣.,!?。、\n]', '', ai_text)
 
-                    # 다운로드 버튼
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.download_button(
-                            label="📄 결과 텍스트 다운로드",
-                            data=ai_text,
-                            file_name="복지혜택_추천결과.txt",
-                            mime="text/plain",
-                            use_container_width=True
-                        )
-                    with col2:
-                        with open("response.mp3", "rb") as f:
+                        if len(clean_text.strip()) < 5:
+                            raise ValueError("텍스트가 너무 짧습니다")
+
+                        tts = gTTS(text=clean_text, lang='ko', slow=False)
+                        tts.save("response.mp3")
+                        st.success("✅ 응답 음성이 준비되었습니다!")
+                        st.audio("response.mp3", format='audio/mp3')
+
+                        # 다운로드 버튼
+                        col1, col2 = st.columns(2)
+                        with col1:
                             st.download_button(
-                                label="🔊 음성 파일 다운로드",
-                                data=f,
-                                file_name="복지혜택_음성안내.mp3",
-                                mime="audio/mp3",
+                                label="📄 결과 텍스트 다운로드",
+                                data=ai_text,
+                                file_name="복지혜택_추천결과.txt",
+                                mime="text/plain",
                                 use_container_width=True
                             )
-                except Exception as e:
-                    st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+                        with col2:
+                            with open("response.mp3", "rb") as f:
+                                st.download_button(
+                                    label="🔊 음성 파일 다운로드",
+                                    data=f,
+                                    file_name="복지혜택_음성안내.mp3",
+                                    mime="audio/mp3",
+                                    use_container_width=True
+                                )
+                    except Exception as e:
+                        error_type = type(e).__name__
+                        st.error(f"⚠️ 음성 변환 중 오류가 발생했습니다 ({error_type})")
+                        st.info(f"상세 정보: {str(e)}")
+                        st.info("💡 결과는 위에서 확인하실 수 있습니다. 음성 파일은 생성되지 않았습니다.")
+            else:
+                st.warning("⚠️ 음성 변환할 텍스트가 없습니다.")
         else:
             st.warning("상황을 입력해주세요!")
 
@@ -577,10 +597,16 @@ with tab2:
                     st.stop()
 
             # TTS 처리
-            if st.session_state.upload_result:
+            if st.session_state.upload_result and len(st.session_state.upload_result.strip()) > 0:
                 with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
                     try:
-                        tts = gTTS(text=st.session_state.upload_result, lang='ko', slow=False)
+                        # TTS를 위한 텍스트 정리 (이모지 제거)
+                        clean_text = re.sub(r'[^\w\s가-힣.,!?。、\n]', '', st.session_state.upload_result)
+
+                        if len(clean_text.strip()) < 5:
+                            raise ValueError("텍스트가 너무 짧습니다")
+
+                        tts = gTTS(text=clean_text, lang='ko', slow=False)
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
@@ -607,7 +633,10 @@ with tab2:
                                 )
 
                     except Exception as e:
-                        st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+                        error_type = type(e).__name__
+                        st.error(f"⚠️ 음성 변환 중 오류가 발생했습니다 ({error_type})")
+                        st.info(f"상세 정보: {str(e)}")
+                        st.info("💡 결과는 위에서 확인하실 수 있습니다. 음성 파일은 생성되지 않았습니다.")
         else:
             # 이미 처리된 파일
             st.info("✅ 이미 분석이 완료되었습니다. 다른 파일을 업로드하거나 페이지를 새로고침해주세요.")
@@ -688,10 +717,16 @@ with tab3:
                     st.stop()
 
             # TTS 처리
-            if st.session_state.recording_result:
+            if st.session_state.recording_result and len(st.session_state.recording_result.strip()) > 0:
                 with st.spinner("🔊 음성으로 말씀드리고 있어요..."):
                     try:
-                        tts = gTTS(text=st.session_state.recording_result, lang='ko', slow=False)
+                        # TTS를 위한 텍스트 정리 (이모지 제거)
+                        clean_text = re.sub(r'[^\w\s가-힣.,!?。、\n]', '', st.session_state.recording_result)
+
+                        if len(clean_text.strip()) < 5:
+                            raise ValueError("텍스트가 너무 짧습니다")
+
+                        tts = gTTS(text=clean_text, lang='ko', slow=False)
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
@@ -718,7 +753,10 @@ with tab3:
                                 )
 
                     except Exception as e:
-                        st.error(f"음성 변환 중 오류가 발생했습니다: {str(e)}")
+                        error_type = type(e).__name__
+                        st.error(f"⚠️ 음성 변환 중 오류가 발생했습니다 ({error_type})")
+                        st.info(f"상세 정보: {str(e)}")
+                        st.info("💡 결과는 위에서 확인하실 수 있습니다. 음성 파일은 생성되지 않았습니다.")
         else:
             # 이미 처리된 오디오 - 이전 결과 표시
             if st.session_state.recording_result:
