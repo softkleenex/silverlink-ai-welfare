@@ -324,15 +324,41 @@ streamlit run app.py
 
 ```
 ai-conic/
-├── app.py                  # 메인 Streamlit 앱 (895줄)
-├── welfare_data.json       # 복지 데이터 (20개)
-├── requirements.txt        # Python 의존성
-├── .env                    # API 키 (git에 미포함)
-├── .env.example           # 환경 변수 템플릿
-├── .gitignore             # Git 제외 파일
+├── app.py                     # 메인 Streamlit 앱 (895줄)
+├── welfare_data.json          # 복지 데이터 (20개)
+├── requirements.txt           # Python 의존성
+├── README.md                  # 프로젝트 메인 문서
+├── CLAUDE.md                  # Claude Code 가이드
+├── .env                       # API 키 (git에 미포함)
+├── .env.example               # 환경 변수 템플릿
+├── .gitignore                 # Git 제외 파일
 ├── .streamlit/
-│   └── config.toml        # Streamlit 테마 설정
-└── README.md              # 프로젝트 문서
+│   └── config.toml            # Streamlit 테마 설정
+├── .devcontainer/             # Dev Container 설정
+├── venv/                      # Python 가상 환경
+└── docs/                      # 📚 모든 문서 (정리됨)
+    ├── NOTION_IMPORT.md       # Notion 가이드
+    ├── hackathon/             # 해커톤 제출 서류
+    │   ├── 2025 해커톤 실시계획안(외부공개용).pdf
+    │   ├── 참가신청서.pdf
+    │   ├── 개인정보동의서.pdf
+    │   └── 아이디어기획서.pdf
+    ├── strategy/              # 전략 문서
+    │   ├── HACKATHON_ANALYSIS.md
+    │   ├── WINNING_STRATEGY.md
+    │   ├── HARSH_EVALUATION.md
+    │   └── ACTION_PLAN.md
+    ├── guides/                # 가이드 문서
+    │   ├── VIDEO_SCRIPT.md
+    │   ├── PPT_GUIDE.md
+    │   ├── DEPLOYMENT.md
+    │   ├── DEPLOYMENT_GUIDE.md
+    │   └── FINAL_CHECKLIST.md
+    └── development/           # 개발 문서
+        ├── AI_IMPROVEMENTS.md
+        ├── PROJECT_STATUS.md
+        ├── NEXT_STEPS.md
+        └── SESSION_REPORT_2025-11-17.md
 ```
 
 ## 🌟 주요 특징
