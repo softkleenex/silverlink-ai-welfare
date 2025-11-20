@@ -622,9 +622,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 제목
-st.markdown('<div class="main-title">🎙️ SilverLink</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">어르신을 위한 AI 복지 도우미</div>', unsafe_allow_html=True)
+# 로고 및 제목
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.image("docs/hackathon/silverlink_logo_horizontal.svg", use_container_width=True)
+
+st.markdown('<div class="sub-title" style="text-align: center; margin-top: -10px;">어르신을 위한 AI 복지 도우미</div>', unsafe_allow_html=True)
 
 # 설명
 st.info("💡 텍스트로 입력하거나 음성 파일을 업로드하시면 받으실 수 있는 복지 혜택을 안내해드립니다!")
