@@ -25,20 +25,20 @@
             height: 85%;
             background: white;
             border-radius: 30px;
-            padding: 50px;
+            padding: 60px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
             text-align: center;
         }
-        .logo-header {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+        .logo-section {
+            margin-bottom: 40px;
         }
-        .logo-header img {
-            height: 80px;
+        .logo-section img {
+            max-width: 500px;
+            height: auto;
             object-fit: contain;
         }
         h1 {
@@ -48,18 +48,19 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
         }
         .qr-section {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 50px;
-            margin-bottom: 30px;
+            gap: 60px;
+            margin-bottom: 50px;
+            width: 100%;
         }
         .qr-box {
-            width: 300px;
-            height: 300px;
+            width: 280px;
+            height: 280px;
             background: white;
             border-radius: 20px;
             display: flex;
@@ -77,36 +78,34 @@
         .url-section {
             flex: 1;
             text-align: left;
+            max-width: 600px;
         }
         .url-label {
-            font-size: 28px;
+            font-size: 26px;
             color: #4a5568;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-weight: 600;
         }
         .url-text {
-            font-size: 38px;
+            font-size: 36px;
             font-weight: 700;
             color: #2d3748;
             background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             border-left: 8px solid #1E88E5;
         }
-        .tagline {
-            font-size: 38px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 15px;
+        .footer {
+            margin-top: 30px;
         }
         .slogan {
-            font-size: 30px;
+            font-size: 28px;
             color: #1E88E5;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .github {
-            font-size: 20px;
+            font-size: 18px;
             color: #718096;
         }
         .github a {
@@ -118,7 +117,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo-header">
+        <div class="logo-section">
             <img src="logo.png" alt="SilverLink Logo">
         </div>
 
@@ -134,11 +133,11 @@
             </div>
         </div>
 
-        <div class="tagline">💙 SilverLink</div>
-        <div class="slogan">기술로 복지 사각지대를 없앱니다</div>
-
-        <div class="github">
-            GitHub: <a href="https://github.com/softkleenex">github.com/softkleenex</a>
+        <div class="footer">
+            <div class="slogan">💙 기술로 복지 사각지대를 없앱니다</div>
+            <div class="github">
+                GitHub: <a href="https://github.com/softkleenex">github.com/softkleenex</a>
+            </div>
         </div>
     </div>
 </body>
