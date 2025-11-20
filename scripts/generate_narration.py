@@ -133,6 +133,10 @@ CHARACTER_SCRIPTS = {
     "senior": "70살인데 치아가 안 좋고 건강검진을 받고 싶어요."
 }
 
+# 캐릭터 전용 목소리 ID
+GRANDMA_VOICE_ID = "fNmw8sukfGuvWVOp33Ge"  # 할머니 나이든 목소리
+GRANDPA_VOICE_ID = "6sFKzaJr574YWVu4UuJF"  # 할아버지 나이든 목소리
+
 
 def generate_speech(text: str, voice_id: str, output_path: Path,
                    stability: float = 0.5, similarity: float = 0.6, style: float = 0.0):
