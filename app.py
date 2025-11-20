@@ -767,7 +767,8 @@ with tab2:
         neutral_color="#3498db",
         icon_name="microphone",
         icon_size="3x",
-        pause_threshold=300.0,  # 5분 동안 자동 중지 안 됨 (버튼으로만 중지)
+        energy_threshold=(-1.0, 1.0),  # 음성 감지 비활성화 (버튼으로만 제어)
+        pause_threshold=300.0,  # 자동 중지 안 됨
         key="audio_recorder"  # 고유 키 추가
     )
 
