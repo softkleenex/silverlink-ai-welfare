@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, initial-scale=1">
-    <title>기술 스택 - SilverLink</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>기술 스택</title>
     <style>
         * {
             margin: 0;
@@ -11,83 +11,89 @@
             box-sizing: border-box;
         }
         body {
-            width: 1920px;
-            height: 1080px;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            overflow: hidden;
         }
-        .slide {
-            width: 1720px;
-            height: 880px;
+        .container {
+            width: 90%;
+            height: 85%;
             background: white;
-            border-radius: 40px;
-            padding: 80px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
         }
-        .logo {
-            position: absolute;
-            top: 60px;
-            right: 80px;
-            font-size: 32px;
-            font-weight: 700;
-            color: #667eea;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
         }
         h1 {
-            font-size: 72px;
+            font-size: 56px;
             font-weight: 800;
             color: #1a202c;
-            margin-bottom: 80px;
-            text-align: center;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
         }
         .tech-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-bottom: 60px;
+            gap: 30px;
+            flex: 1;
         }
         .tech-item {
             background: linear-gradient(135deg, #f5f7fa 0%, #edf2f7 100%);
-            padding: 50px;
-            border-radius: 20px;
-            border-left: 8px solid #667eea;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid #667eea;
         }
         .tech-icon {
-            font-size: 56px;
-            margin-bottom: 20px;
+            font-size: 40px;
+            margin-bottom: 15px;
         }
         .tech-name {
-            font-size: 42px;
+            font-size: 30px;
             font-weight: 700;
             color: #2d3748;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .tech-desc {
-            font-size: 28px;
+            font-size: 20px;
             color: #4a5568;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         .highlight {
             background: #fef3c7;
-            padding: 40px;
-            border-radius: 20px;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
             border: 3px solid #f59e0b;
+            margin-top: 30px;
         }
         .highlight-text {
-            font-size: 38px;
+            font-size: 28px;
             font-weight: 700;
             color: #92400e;
         }
     </style>
 </head>
 <body>
-    <div class="slide">
-        <div class="logo">SilverLink</div>
-        <h1>🛠️ 기술 스택</h1>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ 기술 스택</h1>
+            <div class="logo">SilverLink</div>
+        </div>
 
         <div class="tech-grid">
             <div class="tech-item">
