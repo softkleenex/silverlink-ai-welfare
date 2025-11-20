@@ -712,9 +712,18 @@ with tab1:
                             raise ValueError("텍스트가 너무 짧습니다")
 
                         tts = gTTS(text=clean_text, lang='ko', slow=False)
+
+                        # BytesIO를 사용하여 메모리에서 처리
+                        from io import BytesIO
+                        audio_fp = BytesIO()
+                        tts.write_to_fp(audio_fp)
+                        audio_fp.seek(0)
+
+                        # 파일로도 저장 (다운로드용)
                         tts.save("response.mp3")
+
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio("response.mp3", format='audio/mp3')
+                        st.audio(audio_fp, format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
@@ -825,10 +834,18 @@ with tab2:
                             raise ValueError("텍스트가 너무 짧습니다")
 
                         tts = gTTS(text=clean_text, lang='ko', slow=False)
+
+                        # BytesIO를 사용하여 메모리에서 처리
+                        from io import BytesIO
+                        audio_fp = BytesIO()
+                        tts.write_to_fp(audio_fp)
+                        audio_fp.seek(0)
+
+                        # 파일로도 저장 (다운로드용)
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio("response.mp3", format='audio/mp3')
+                        st.audio(audio_fp, format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
@@ -945,10 +962,18 @@ with tab3:
                             raise ValueError("텍스트가 너무 짧습니다")
 
                         tts = gTTS(text=clean_text, lang='ko', slow=False)
+
+                        # BytesIO를 사용하여 메모리에서 처리
+                        from io import BytesIO
+                        audio_fp = BytesIO()
+                        tts.write_to_fp(audio_fp)
+                        audio_fp.seek(0)
+
+                        # 파일로도 저장 (다운로드용)
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio("response.mp3", format='audio/mp3')
+                        st.audio(audio_fp, format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
