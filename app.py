@@ -726,7 +726,8 @@ with tab1:
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio(audio_fp, format='audio/mp3')
+                        # BytesIO에서 bytes 추출하여 전달
+                        st.audio(audio_fp.getvalue(), format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
@@ -854,7 +855,8 @@ with tab2:
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio(audio_fp, format='audio/mp3')
+                        # BytesIO에서 bytes 추출하여 전달
+                        st.audio(audio_fp.getvalue(), format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
@@ -986,7 +988,8 @@ with tab3:
                         tts.save("response.mp3")
 
                         st.success("✅ 응답 음성이 준비되었습니다!")
-                        st.audio(audio_fp, format='audio/mp3')
+                        # BytesIO에서 bytes 추출하여 전달
+                        st.audio(audio_fp.getvalue(), format='audio/mp3')
 
                         # 다운로드 버튼
                         col1, col2 = st.columns(2)
