@@ -17,6 +17,11 @@ ENV/
 *.m4a
 temp_audio.*
 response.*
+narration/
+narration_*/
+
+# Allow sample audio files
+!audio_samples/*.mp3
 
 # IDE
 .vscode/
