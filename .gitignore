@@ -11,17 +11,15 @@ venv/
 env/
 ENV/
 
-# Audio files
+# Audio files (영상 제작용 - 용량이 커서 Git에 올리지 않음)
 *.mp3
 *.wav
 *.m4a
 temp_audio.*
 response.*
-narration/
-narration_*/
-
-# Allow sample audio files
-!audio_samples/*.mp3
+audio/narration/
+audio/characters/
+audio_samples/
 
 # IDE
 .vscode/
