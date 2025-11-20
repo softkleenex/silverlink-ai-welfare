@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1">
+    <title>차별화 포인트 - SilverLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 1920px;
+            height: 1080px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1720px;
+            height: 880px;
+            background: white;
+            border-radius: 40px;
+            padding: 80px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+        }
+        .logo {
+            position: absolute;
+            top: 60px;
+            right: 80px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #f5576c;
+        }
+        h1 {
+            font-size: 72px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 100px;
+            text-align: center;
+        }
+        .diff-list {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+        .diff-item {
+            display: flex;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #fff5f5 0%, #fee 100%);
+            padding: 50px;
+            border-radius: 20px;
+            border-left: 10px solid #f5576c;
+        }
+        .diff-number {
+            font-size: 80px;
+            font-weight: 900;
+            color: #f5576c;
+            margin-right: 40px;
+            min-width: 100px;
+        }
+        .diff-content {
+            flex: 1;
+        }
+        .diff-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+        .diff-desc {
+            font-size: 32px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="logo">SilverLink</div>
+        <h1>💡 SilverLink 차별점</h1>
+
+        <div class="diff-list">
+            <div class="diff-item">
+                <div class="diff-number">1</div>
+                <div class="diff-content">
+                    <div class="diff-title">실시간 녹음으로 버튼 한 번에 모든 과정 완료</div>
+                    <div class="diff-desc">복잡한 입력 없이 말씀만 하시면 끝!</div>
+                </div>
+            </div>
+
+            <div class="diff-item">
+                <div class="diff-number">2</div>
+                <div class="diff-content">
+                    <div class="diff-title">Gemini AI로 음성부터 분석까지 통합 처리</div>
+                    <div class="diff-desc">하나의 AI가 모든 과정을 한 번에 처리</div>
+                </div>
+            </div>
+
+            <div class="diff-item">
+                <div class="diff-number">3</div>
+                <div class="diff-content">
+                    <div class="diff-title">즉시 사용 가능한 배포 완료 서비스</div>
+                    <div class="diff-desc">silverlink-ai.streamlit.app에서 바로 사용</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

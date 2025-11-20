@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1">
+    <title>아웃트로 - SilverLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 1920px;
+            height: 1080px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        .slide {
+            width: 1720px;
+            height: 880px;
+            background: white;
+            border-radius: 40px;
+            padding: 80px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            font-size: 80px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 60px;
+        }
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 80px;
+            margin-bottom: 60px;
+        }
+        .qr-box {
+            width: 400px;
+            height: 400px;
+            background: #f7fafc;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid #4facfe;
+            font-size: 32px;
+            color: #718096;
+            font-weight: 600;
+        }
+        .url-box {
+            flex: 1;
+            text-align: left;
+        }
+        .url-label {
+            font-size: 36px;
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .url-text {
+            font-size: 52px;
+            font-weight: 700;
+            color: #2d3748;
+            background: #ebf8ff;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 8px solid #4facfe;
+            word-break: break-all;
+        }
+        .tagline {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+        .slogan {
+            font-size: 38px;
+            color: #4a5568;
+            font-style: italic;
+        }
+        .github {
+            margin-top: 40px;
+            font-size: 28px;
+            color: #718096;
+        }
+        .github a {
+            color: #4facfe;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <h1>🌟 지금 바로 체험하세요!</h1>
+
+        <div class="qr-container">
+            <div class="qr-box">
+                [QR 코드]<br>
+                <div style="font-size: 20px; margin-top: 20px;">qr-code-generator.com<br>에서 생성 후 삽입</div>
+            </div>
+            <div class="url-box">
+                <div class="url-label">🔗 접속 URL</div>
+                <div class="url-text">silverlink-ai.streamlit.app</div>
+            </div>
+        </div>
+
+        <div class="tagline">💙 SilverLink</div>
+        <div class="slogan">기술로 복지 사각지대를 없앱니다</div>
+
+        <div class="github">
+            GitHub: <a href="https://github.com/softkleenex/silverlink-ai-welfare">github.com/softkleenex/silverlink-ai-welfare</a>
+        </div>
+    </div>
+</body>
+</html>
