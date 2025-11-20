@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 from gtts import gTTS
-from audio_recorder_streamlit import audio_recorder
+# from audio_recorder_streamlit import audio_recorder  # 자동 중지 문제로 제거
 import json
 import os
 import hashlib
@@ -752,7 +752,7 @@ with tab1:
 # 탭 2: 실시간 녹음
 with tab2:
     st.markdown("### 🎙️ 버튼을 눌러 직접 녹음해주세요")
-    st.info("💡 아래 마이크 버튼을 눌러 녹음을 시작하고, 다시 눌러 녹음을 종료하세요")
+    st.info("💡 아래 녹음 버튼을 눌러 시작하고, 다시 눌러 중지하세요")
 
     # 세션 상태 초기화
     if "processed_audio_hash" not in st.session_state:
@@ -760,17 +760,11 @@ with tab2:
     if "recording_result" not in st.session_state:
         st.session_state.recording_result = None
 
-    # 실시간 녹음
-    audio_bytes = audio_recorder(
-        text="녹음 시작/중지",
-        recording_color="#e74c3c",
-        neutral_color="#3498db",
-        icon_name="microphone",
-        icon_size="3x",
-        energy_threshold=(-1.0, 1.0),  # 음성 감지 비활성화 (버튼으로만 제어)
-        pause_threshold=300.0,  # 자동 중지 안 됨
-        key="audio_recorder"  # 고유 키 추가
-    )
+    # 실시간 녹음 (Streamlit 네이티브)
+    audio_file = st.audio_input("🎙️ 녹음하기", key="audio_recorder")
+
+    # audio_file을 bytes로 변환
+    audio_bytes = audio_file.getvalue() if audio_file is not None else None
 
     if audio_bytes:
         # 오디오 해시 생성 (중복 처리 방지)
