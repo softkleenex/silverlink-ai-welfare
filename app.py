@@ -767,6 +767,7 @@ with tab2:
         neutral_color="#3498db",
         icon_name="microphone",
         icon_size="3x",
+        pause_threshold=300.0,  # 5분 동안 자동 중지 안 됨 (버튼으로만 중지)
         key="audio_recorder"  # 고유 키 추가
     )
 
@@ -899,6 +900,9 @@ with tab3:
 
         # 이미 처리한 파일인지 확인
         if file_hash != st.session_state.processed_file_hash:
+            # 오디오 파일 표시
+            st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[1]}')
+
             # Gemini로 오디오 처리 (STT + AI 분석 한 번에!)
             with st.spinner("🎧 어르신 말씀을 듣고 복지 혜택을 찾고 있어요..."):
                 try:
