@@ -15,12 +15,30 @@ ai-conic/
 ├── 📄 README.md                   # 프로젝트 메인 문서
 ├── 📄 CLAUDE.md                   # Claude Code 가이드
 ├── 📄 STRUCTURE.md                # 이 파일 (프로젝트 구조)
+├── 📄 TIMELINE_FINAL.md           # 영상 제작 타임라인
+├── 🎬 aiconic_demo_final.mp4      # 완성된 데모 영상
 │
 ├── 🎙️ audio/                      # 오디오 파일 (영상 제작용)
-│   ├── narration/                 # 나레이션 (여자/남자)
-│   │   ├── female/                # 여자 나이든 목소리 (11개)
-│   │   └── male/                  # 남자 나이든 목소리 (11개)
-│   └── characters/                # 모의 사용자 음성 (3개)
+│   ├── final_audio/               # ⭐ 최종 나레이션 (14개, 영상에 사용)
+│   │   ├── 01_intro.mp3
+│   │   ├── 02_service.mp3
+│   │   ├── 03~08_scenario*.mp3   # 시나리오 1~3 (인트로/캐릭터/결과)
+│   │   ├── 09_tech_stack.mp3
+│   │   ├── 10_differentiation.mp3
+│   │   └── 11_outro.mp3
+│   ├── narration/                 # 이전 나레이션 (백업)
+│   │   ├── female/                # 여자 나이든 목소리
+│   │   └── male/                  # 남자 나이든 목소리
+│   └── characters/                # 캐릭터 음성 (시연용)
+│
+├── 📊 slides/                     # HTML 프레젠테이션 슬라이드
+│   ├── 01_tech_stack.html         # 기술 스택 슬라이드
+│   ├── 02_differentiation.html    # 차별화 포인트 슬라이드
+│   ├── 03_outro.html              # 아웃트로 (QR코드 포함)
+│   ├── logo.svg                   # SilverLink 로고 (SVG)
+│   ├── logo.png                   # 로고 (PNG)
+│   ├── logo_centered.png          # 로고 (중앙 배치)
+│   └── qr_code.png                # 앱 QR 코드
 │
 ├── 📚 docs/                       # 문서 모음
 │   ├── guides/                    # 가이드 문서
@@ -32,7 +50,7 @@ ai-conic/
 │   │   └── FINAL_CHECKLIST.md     # 해커톤 제출 전 체크리스트
 │   │
 │   ├── hackathon/                 # 해커톤 제출 자료
-│   │   ├── silverlink_logo_*.svg  # 로고 파일 (2개)
+│   │   ├── silverlink_logo_*.svg  # 로고 파일 (가로/아이콘)
 │   │   └── *.pdf                  # 신청서, 기획서, 계획안
 │   │
 │   ├── strategy/                  # 전략 문서
@@ -62,11 +80,36 @@ ai-conic/
 ### 🎙️ audio/
 **목적**: 데모 영상 제작용 오디오 파일
 
-- `narration/female/` - 나레이션 (여자 목소리) ⭐ 추천
-- `narration/male/` - 나레이션 (남자 목소리)
-- `characters/` - 모의 사용자 음성 (시연용)
+- `final_audio/` - ⭐ **최종 나레이션 (14개 파일, 영상에 사용)**
+  - ElevenLabs로 생성된 고품질 한국어 나레이션
+  - 시나리오 순서가 앱 탭 순서와 일치하도록 조정됨
+  - 숫자 표현 제거하여 AI 출력과 유연하게 대응
+- `narration/` - 이전 나레이션 (백업용)
+  - `female/` - 여자 목소리 버전
+  - `male/` - 남자 목소리 버전
+- `characters/` - 캐릭터 음성 (시연용)
 
 **자세한 설명**: `audio/README.md`
+
+---
+
+### 📊 slides/
+**목적**: 영상에 사용되는 HTML 프레젠테이션 슬라이드
+
+- `01_tech_stack.html` - 기술 스택 소개 슬라이드
+- `02_differentiation.html` - 차별화 포인트 슬라이드
+- `03_outro.html` - 아웃트로 (QR코드, GitHub 링크 포함)
+- `logo.svg` - SilverLink 로고 (SVG, 고품질)
+- `logo.png` - 로고 PNG 버전
+- `logo_centered.png` - 로고 중앙 배치 버전
+- `qr_code.png` - 앱 배포 URL QR 코드
+
+**특징**:
+- 반응형 디자인 (viewport 단위 사용)
+- 통일된 브랜드 컬러 (파란색 그라데이션)
+- HTML 슬라이드가 logo.svg, qr_code.png를 참조 (파일 이동 금지!)
+
+**자세한 설명**: `slides/README.md`
 
 ---
 
@@ -145,13 +188,16 @@ welfare_data.json             # 복지 혜택 데이터
 requirements.txt              # 패키지 설치
 ```
 
-### 영상 제작 (D-3 긴급!)
+### 영상 제작
 ```bash
-docs/guides/VIDEO_GUIDE.md    # ⭐ 영상 제작 완벽 가이드 (여기부터 시작!)
+aiconic_demo_final.mp4        # ✅ 완성된 데모 영상
+TIMELINE_FINAL.md             # 영상 타임라인
+docs/guides/VIDEO_GUIDE.md    # ⭐ 영상 제작 가이드
 docs/guides/FILMING_GUIDE.md  # iPhone 촬영 방법
 docs/guides/AUDIO_GUIDE.md    # 사용할 음성 파일 정리
-audio/narration/female/       # 나레이션 파일 (추천)
+audio/final_audio/            # 최종 나레이션 (14개)
 audio/characters/             # 시연용 음성
+slides/                       # HTML 슬라이드 (3개)
 ```
 
 ### 해커톤 제출
@@ -165,7 +211,22 @@ README.md                         # 프로젝트 설명 (GitHub)
 
 ## 📋 변경 이력
 
-### 2025-11-20: 대규모 재구조화
+### 2025-11-20 (저녁): 영상 제작 완료 및 최종 정리
+- ✅ **데모 영상 제작 완료**: `aiconic_demo_final.mp4`
+- ✅ **HTML 슬라이드 추가**: `slides/` 폴더 생성 (3개 슬라이드)
+- ✅ **최종 나레이션 확정**: `audio/male 복사본/` (14개 파일)
+- ✅ **YouTube 링크 준비**: README에 섹션 추가
+- ✅ **프로젝트 구조 문서화**: README, STRUCTURE 최신 상태 반영
+
+**새로 추가된 파일**:
+- `aiconic_demo_final.mp4` - 완성된 데모 영상
+- `slides/01_tech_stack.html` - 기술 스택 슬라이드
+- `slides/02_differentiation.html` - 차별화 슬라이드
+- `slides/03_outro.html` - 아웃트로 슬라이드
+- `slides/logo.svg` - 로고 SVG
+- `slides/qr_code.png` - QR 코드
+
+### 2025-11-20 (오전): 대규모 재구조화
 - ✅ 오디오 파일 재정리: `audio/narration/`, `audio/characters/`
 - ✅ 중복 문서 삭제: 5개 가이드 파일 제거
 - ✅ 파일명 간소화: `*_IPHONE`, `*_KOREAN` 등 제거
@@ -216,6 +277,9 @@ docs/guides/DEPLOYMENT.md
 ---
 
 **작성자**: Claude Code
-**마지막 업데이트**: 2025-11-20
+**마지막 업데이트**: 2025-11-20 (저녁)
 
-**다음 작업**: 영상 촬영 시작! (`docs/guides/VIDEO_GUIDE.md` 참고)
+**다음 작업**:
+1. ✅ 영상 제작 완료 (`aiconic_demo_final.mp4`)
+2. 🎬 YouTube 업로드 및 README 링크 추가
+3. 📝 해커톤 제출 준비 (`docs/guides/FINAL_CHECKLIST.md` 참고)

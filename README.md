@@ -20,7 +20,7 @@
 
 ## 🎬 시연 영상
 
-**데모 영상** (제작 예정)
+**데모 영상**: https://youtu.be/EZ51B_4LKCc
 
 영상에서 확인할 수 있는 것:
 - ✅ **실시간 녹음 기능** - 버튼 한 번으로 끝! (핵심 차별화)
@@ -324,11 +324,14 @@ streamlit run app.py
 
 ```
 ai-conic/
-├── app.py                     # 메인 Streamlit 앱 (895줄)
+├── app.py                     # 메인 Streamlit 앱
 ├── welfare_data.json          # 복지 데이터 (20개)
 ├── requirements.txt           # Python 의존성
 ├── README.md                  # 프로젝트 메인 문서
 ├── CLAUDE.md                  # Claude Code 가이드
+├── STRUCTURE.md               # 프로젝트 구조 상세 설명
+├── TIMELINE_FINAL.md          # 영상 제작 타임라인
+├── aiconic_demo_final.mp4     # 완성된 데모 영상
 ├── .env                       # API 키 (git에 미포함)
 ├── .env.example               # 환경 변수 템플릿
 ├── .gitignore                 # Git 제외 파일
@@ -336,29 +339,43 @@ ai-conic/
 │   └── config.toml            # Streamlit 테마 설정
 ├── .devcontainer/             # Dev Container 설정
 ├── venv/                      # Python 가상 환경
-└── docs/                      # 📚 모든 문서 (정리됨)
+├── audio/                     # 🎙️ 오디오 파일 (영상 제작용)
+│   ├── final_audio/           # 최종 나레이션 (14개 파일)
+│   ├── narration/             # 이전 나레이션 (백업)
+│   └── characters/            # 캐릭터 음성 (시연용)
+├── slides/                    # 📊 HTML 프레젠테이션 슬라이드
+│   ├── 01_tech_stack.html     # 기술 스택 슬라이드
+│   ├── 02_differentiation.html # 차별화 포인트 슬라이드
+│   ├── 03_outro.html          # 아웃트로 슬라이드
+│   ├── logo.svg               # SilverLink 로고
+│   ├── logo.png               # 로고 PNG 버전
+│   └── qr_code.png            # 앱 QR 코드
+├── scripts/                   # 🔧 자동화 스크립트
+│   ├── generate_narration.py  # ElevenLabs TTS 나레이션 생성
+│   ├── age_voice.py           # 음성 후처리 (사용 안 함)
+│   └── README.md              # 스크립트 사용법
+└── docs/                      # 📚 모든 문서
     ├── NOTION_IMPORT.md       # Notion 가이드
-    ├── hackathon/             # 해커톤 제출 서류
-    │   ├── 2025 해커톤 실시계획안(외부공개용).pdf
-    │   ├── 참가신청서.pdf
-    │   ├── 개인정보동의서.pdf
-    │   └── 아이디어기획서.pdf
+    ├── hackathon/             # 해커톤 제출 자료
+    │   ├── silverlink_logo_*.svg
+    │   └── *.pdf              # 신청서, 기획서
     ├── strategy/              # 전략 문서
     │   ├── HACKATHON_ANALYSIS.md
     │   ├── WINNING_STRATEGY.md
     │   ├── HARSH_EVALUATION.md
     │   └── ACTION_PLAN.md
     ├── guides/                # 가이드 문서
-    │   ├── VIDEO_SCRIPT.md
-    │   ├── PPT_GUIDE.md
+    │   ├── VIDEO_GUIDE.md     # 영상 제작 가이드
+    │   ├── FILMING_GUIDE.md   # 촬영 가이드
+    │   ├── AUDIO_GUIDE.md     # 오디오 파일 정리
+    │   ├── ELEVENLABS_GUIDE.md
     │   ├── DEPLOYMENT.md
-    │   ├── DEPLOYMENT_GUIDE.md
     │   └── FINAL_CHECKLIST.md
     └── development/           # 개발 문서
         ├── AI_IMPROVEMENTS.md
         ├── PROJECT_STATUS.md
         ├── NEXT_STEPS.md
-        └── SESSION_REPORT_2025-11-17.md
+        └── SESSION_REPORT_*.md
 ```
 
 ## 🌟 주요 특징
